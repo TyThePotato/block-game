@@ -6,7 +6,8 @@ public class World : MonoBehaviour
 {
     public static World instance;
 
-    public int WorldSize = 10; // will be removed later on when implementing infinite terrain, only here while terrain generation is being added
+    public int WorldSizeInChunks = 10; // will be removed later on when implementing infinite terrain, only here while terrain generation is being added
+    public int WorldHeightInChunks = 16;
     [HideInInspector]
     public const int ChunkSize = 16; // how many blocks in each direction are in a chunk, used for correctly positioning chunks
 
@@ -34,15 +35,15 @@ public class World : MonoBehaviour
             Destroy(this);
         }
 
-        chunks = new Chunk[WorldSize, WorldSize, WorldSize];
+        chunks = new Chunk[WorldSizeInChunks, WorldHeightInChunks, WorldSizeInChunks];
         Seed = Random.Range(int.MinValue, int.MaxValue);
-        StartCoroutine(GenerateChunks());
+        GenerateChunks();
     }
 
-    IEnumerator GenerateChunks() {
-        for (int x = 0; x < WorldSize; x++) {
-            for (int y = 0; y < WorldSize; y++) {
-                for (int z = 0; z < WorldSize; z++) {
+    void GenerateChunks() {
+        for (int x = 0; x < WorldSizeInChunks; x++) {
+            for (int y = 0; y < WorldHeightInChunks; y++) {
+                for (int z = 0; z < WorldSizeInChunks; z++) {
                     GameObject chunk = new GameObject($"Chunk_{x},{y},{z}"); // create new chunk
                     chunk.isStatic = true;
                     chunk.transform.position = new Vector3Int(x * ChunkSize, y * ChunkSize, z * ChunkSize); // position chunk 
@@ -54,7 +55,6 @@ public class World : MonoBehaviour
 
                     // actual chunk stuff
                     chunks[x, y, z] = chunk.AddComponent<Chunk>();
-                    yield return null;
                 }
             }
         }
@@ -67,7 +67,7 @@ public class World : MonoBehaviour
 
         // when GetChunkFromBlockCoords is supplied coordinates that are outside the world, it will return a null chunk, this is normal behavior
         if (parentChunk == null) {
-            return BlockList.instance.blocks["Air"]; // this should normally be set to stone, its only set to air for debugging purposes because that allows you to see the sides of blocks that face the edge of the world
+            return BlockList.instance.blocks["Stone"]; // this should normally be set to stone, its only set to air for debugging purposes because that allows you to see the sides of blocks that face the edge of the world
         }
 
         // in the event that the chunk's blocks weren't generated yet, we will check the noisemap to guess the blocks in the chunk
@@ -86,10 +86,11 @@ public class World : MonoBehaviour
     }
 
     public Chunk GetChunkFromBlockCoords(int x, int y, int z) {
-        int blockLen = WorldSize * ChunkSize;
+        int blockLen = WorldSizeInChunks * ChunkSize;
+        int blockhei = WorldHeightInChunks * ChunkSize;
 
         // make sure the position is even in the world
-        if (x >= blockLen || x < 0 || y >= blockLen || y < 0 || z >= blockLen || z < 0) {
+        if (x >= blockLen || x < 0 || y >= blockhei || y < 0 || z >= blockLen || z < 0) {
             return null;
         }
 

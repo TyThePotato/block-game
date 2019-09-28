@@ -15,9 +15,15 @@ public class Chunk : MonoBehaviour
     List<Vector2> uvs;
     List<Vector2> coloruvs; // experimental
 
-    private void Start() {
+    private void Awake() {
         blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        verts = new List<Vector3>(98304);
+        tris = new List<int>(147456);
+        uvs = new List<Vector2>(98304);
+        coloruvs = new List<Vector2>(98304);
+    }
 
+    private void Start() {
         GenerateBlocks();
         GenerateChunkMesh();
     }
@@ -64,10 +70,9 @@ public class Chunk : MonoBehaviour
         //sw.Start();
 
         int faceCount = 0;
-        verts = new List<Vector3>(98304);
-        tris = new List<int>(147456);
-        uvs = new List<Vector2>(98304);
-        coloruvs = new List<Vector2>(98304);
+        verts.Clear();
+        tris.Clear();
+        uvs.Clear();
 
         for (int x = 0; x < ChunkSize; x++) {
             for (int y = 0; y < ChunkSize; y++) {

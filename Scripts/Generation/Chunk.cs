@@ -7,8 +7,10 @@ public class Chunk : MonoBehaviour
     public const int ChunkSize = World.ChunkSize; // this should be the same value as the chunksize in the world script
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
-    public const float TextureAtlasSize = 0.0625f;
-    public const float UVBleedCompromise = 0.00048828125f;
+    public const float TextureAtlasSize = 0.25f; //0.0625f;
+    public const float UVBleedCompromise = 0.001953125f; //0.0009765625f;
+
+    public Chunk NorthNeighbor, SouthNeighbor, EastNeighbor, WestNeighbor, TopNeighbor, BottomNeighbor;
 
     List<Vector3> verts;
     List<int> tris;
@@ -17,10 +19,10 @@ public class Chunk : MonoBehaviour
 
     private void Awake() {
         blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
-        verts = new List<Vector3>(98304);
-        tris = new List<int>(147456);
-        uvs = new List<Vector2>(98304);
-        coloruvs = new List<Vector2>(98304);
+        verts = new List<Vector3>(ChunkSize*ChunkSize*ChunkSize*24);
+        tris = new List<int>(ChunkSize*ChunkSize*ChunkSize*36);
+        uvs = new List<Vector2>(ChunkSize*ChunkSize*ChunkSize*24);
+        coloruvs = new List<Vector2>(ChunkSize*ChunkSize*ChunkSize*24);
     }
 
     private void Start() {
@@ -154,6 +156,7 @@ public class Chunk : MonoBehaviour
 
         // create new mesh out of the new verts and tris and apply it to the chunk
         Mesh chunkMesh = new Mesh();
+        chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         chunkMesh.SetVertices(verts);
         chunkMesh.SetTriangles(tris,0);
         chunkMesh.SetUVs(0,uvs);
@@ -239,6 +242,10 @@ public class Chunk : MonoBehaviour
 
     public void UpdateChunk () {
         GenerateChunkMesh();
+    }
+
+    public void Unload () {
+        Destroy(gameObject);
     }
 
 }

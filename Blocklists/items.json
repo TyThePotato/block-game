@@ -1,0 +1,8 @@
+{
+	"items":[
+	{
+	"name":"Stone Pickaxe", 
+    "prefab":"StonePick"
+	}
+  ]
+}

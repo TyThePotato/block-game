@@ -1,0 +1,9 @@
+{
+    "models":[
+        {
+            "name":"Block",
+            "faceCullingSupported":true,
+            "faces": null
+        }
+    ]
+}

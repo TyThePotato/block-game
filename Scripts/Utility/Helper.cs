@@ -38,4 +38,8 @@ public static class Helper
         textEditor.SelectAll();
         textEditor.Copy();
     }
+
+    public static int Mod(this int a, int b) {
+        return (a % b + b) % b;
+    }
 }

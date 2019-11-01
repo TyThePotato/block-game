@@ -7,27 +7,28 @@
   {
     "name":"Stone",
     "soundType":"rock",
+    "translucent":"false",
     "textures":[
-      {"x":1, "y":15}
+      {"x":3, "y":3}
     ]
   },
   {
     "name":"Grass",
     "soundType":"grass",
     "textures":[
-      {"x":0, "y":15},
-      {"x":2, "y":15},
-      {"x":3, "y":15},
-      {"x":3, "y":15},
-      {"x":3, "y":15},
-      {"x":3, "y":15}
+      {"x":0, "y":3},
+      {"x":2, "y":3},
+      {"x":1, "y":3},
+      {"x":1, "y":3},
+      {"x":1, "y":3},
+      {"x":1, "y":3}
     ]
   },
   {
     "name":"Dirt",
     "soundType":"dirt",
     "textures":[
-      {"x":2, "y":15}
+      {"x":2, "y":3}
     ]
   },
   {
@@ -35,15 +36,42 @@
     "invincible":true,
     "soundType":"rock",
     "textures":[
-      {"x":1, "y":14}
+      {"x":0, "y":2}
     ]
   },
   {
-    "name":"Wooden Planks",
+    "name":"Wood",
     "soundType":"wood",
     "textures":[
-      {"x":4, "y":15}
+      {"x":1, "y":2}
     ]
+  },
+  {
+    "name":"Log",
+    "soundType":"wood",
+    "textures":[
+        {"x":3, "y":2},
+        {"x":3, "y":2},
+        {"x":2, "y":2},
+        {"x":2, "y":2},
+        {"x":2, "y":2},
+        {"x":2, "y":2}
+      ]
+  },
+  {
+    "name":"Sand",
+    "soundType":"dirt",
+    "textures":[
+      {"x":0, "y":1}
+    ]
+  },
+  {
+      "name":"Window",
+      "soundType":"rock",
+      "translucent": true,
+      "textures":[
+          {"x":1, "y":1}
+      ]
   }
   ]
 }

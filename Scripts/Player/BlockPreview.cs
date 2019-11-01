@@ -4,27 +4,14 @@ using UnityEngine;
 
 public class BlockPreview : MonoBehaviour
 {
-    public BlockBreaker bb;
-    Block lastBlock;
+    public Material blockmat;
     float TextureAtlasSize = Chunk.TextureAtlasSize;
     float UVBleedCompromise = Chunk.UVBleedCompromise;
     List<Vector3> verts;
     List<int> tris;
     List<Vector2> uvs;
 
-    private void Start() {
-        lastBlock = bb.currentlySelectedBlock;
-        GenerateBlockMesh();
-    }
-
-    private void Update() {
-        if (lastBlock != bb.currentlySelectedBlock) {
-            lastBlock = bb.currentlySelectedBlock;
-            GenerateBlockMesh();
-        }
-    }
-
-    public void GenerateBlockMesh()
+    public GameObject GenerateBlockMesh(Block block)
     {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
@@ -41,7 +28,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0 + 1, 0 + 1, 0 + 1));
         verts.Add(new Vector3(0 + 1, 0 + 1, 0));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Top));
+        AddUvs(block.GetTexture(Faces.Top));
         faceCount++;
 
 
@@ -52,7 +39,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0, 0, 0 + 1));
         verts.Add(new Vector3(0, 0, 0));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Bottom));
+        AddUvs(block.GetTexture(Faces.Bottom));
         faceCount++;
 
 
@@ -63,7 +50,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0, 0 + 1, 0));
         verts.Add(new Vector3(0, 0, 0));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Left));
+        AddUvs(block.GetTexture(Faces.Left));
         faceCount++;
 
 
@@ -74,7 +61,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0 + 1, 0 + 1, 0 + 1));
         verts.Add(new Vector3(0 + 1, 0, 0 + 1));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Right));
+        AddUvs(block.GetTexture(Faces.Right));
         faceCount++;
 
 
@@ -85,7 +72,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0 + 1, 0 + 1, 0));
         verts.Add(new Vector3(0 + 1, 0, 0));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Front));
+        AddUvs(block.GetTexture(Faces.Front));
         faceCount++;
 
 
@@ -96,7 +83,7 @@ public class BlockPreview : MonoBehaviour
         verts.Add(new Vector3(0, 0 + 1, 0 + 1));
         verts.Add(new Vector3(0, 0, 0 + 1));
         AddTris(faceCount);
-        AddUvs(bb.currentlySelectedBlock.GetTexture(Faces.Back));
+        AddUvs(block.GetTexture(Faces.Back));
         faceCount++;
 
 
@@ -105,9 +92,16 @@ public class BlockPreview : MonoBehaviour
         chunkMesh.SetVertices(verts);
         chunkMesh.SetTriangles(tris, 0);
         chunkMesh.SetUVs(0, uvs);
-
         chunkMesh.RecalculateNormals();
-        GetComponent<MeshFilter>().mesh = chunkMesh;
+
+        GameObject go = new GameObject("mesh");
+        go.AddComponent<MeshFilter>().mesh = chunkMesh;
+        go.AddComponent<MeshRenderer>().material = blockmat;
+        go.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        go.transform.position = new Vector3(-0.5f, -0.5f, -0.5f);
+        GameObject go2 = new GameObject(block.name);
+        go.transform.SetParent(go2.transform);
+        return go2;
     }
 
     private void AddTris (int fc) {

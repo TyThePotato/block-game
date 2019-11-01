@@ -5,15 +5,12 @@ using UnityEngine;
 
 public class BlockBreaker : MonoBehaviour
 {
-    // this script is for testing
-
     public Camera cam;
     public float range;
+    public float minBlockPlacementDistance;
     public LayerMask layerMask;
 
     public Block currentlySelectedBlock;
-    private int amountOfBlocks;
-    private int selectedBlockIndex;
 
     [HideInInspector]
     public Vector3Int lookingAtPos = Vector3Int.zero;
@@ -21,37 +18,29 @@ public class BlockBreaker : MonoBehaviour
     public Block lookingAt;
 
     private Vector3 lookingAtFacePos;
+    private Transform player;
 
     public Transform SelectionQuadParent;
     public Transform SelectionQuad;
 
-    private void Start() {
-        amountOfBlocks = BlockList.instance.blocks.Count;
+    public bool CanInteract = true;
+
+    private void Awake() {
+        player = transform;
     }
 
     private void Update() {
+        if (CanInteract) {
+            if (Input.GetMouseButtonDown(0) && !lookingAt.invincible) {
+                // l click
+                BreakBlock();
+            }
 
-        if (Input.GetMouseButtonDown(0)) {
-            // l click
-            BreakBlock();
+            if (Input.GetMouseButtonDown(1) && currentlySelectedBlock != null) {
+                // r click
+                PlaceBlock();
+            }
         }
-
-        if (Input.GetMouseButtonDown(1)) {
-            // r click
-            PlaceBlock();
-        }
-
-        if (Input.GetAxis("Mouse ScrollWheel") > 0) {
-            // up
-            selectedBlockIndex = Mathf.Clamp(selectedBlockIndex+1,1,amountOfBlocks-1);
-        }
-
-        if (Input.GetAxis("Mouse ScrollWheel") < 0) {
-            // down
-            selectedBlockIndex = Mathf.Clamp(selectedBlockIndex-1,1,amountOfBlocks-1);
-        }
-
-        currentlySelectedBlock = BlockList.instance.blocks.Values.ElementAt(selectedBlockIndex);
     }
 
     private void LateUpdate() {
@@ -99,6 +88,7 @@ public class BlockBreaker : MonoBehaviour
         Vector3 pos = hit.point;
         pos += (hit.normal*0.5f);
         Vector3Int pos_i = pos.FloorToInt();
+        if(CheckIfPlayerIsGoingToGetStuckInTheBlockTheyAreTryingToPlace(pos_i)) return;
         if (PlaySound) {
             AudioManager.instance.PlayMaterialSound(block.soundType, pos_i);
         }
@@ -109,5 +99,12 @@ public class BlockBreaker : MonoBehaviour
     void SetBlock (int x, int y, int z, Block block) {
         World.instance.SetBlock(x,y,z,block);
         World.instance.UpdateChunk(x,y,z,true);
+    }
+
+    private bool CheckIfPlayerIsGoingToGetStuckInTheBlockTheyAreTryingToPlace(Vector3 xyz) {
+        Vector3 bottomHalf = new Vector3(player.position.x, player.position.y - 0.5f, player.position.z);
+        Vector3 topHalf = new Vector3(player.position.x, player.position.y + 0.5f, player.position.z);
+
+        return bottomHalf.Floor() == xyz || topHalf.Floor() == xyz;
     }
 }

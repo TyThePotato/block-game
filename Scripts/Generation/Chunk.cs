@@ -246,6 +246,7 @@ public class Chunk : MonoBehaviour
 
     public void Unload () {
         Destroy(gameObject);
+        // chunk meshes should be destroyed here too
     }
 
 }

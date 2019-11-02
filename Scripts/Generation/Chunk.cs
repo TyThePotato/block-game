@@ -245,8 +245,8 @@ public class Chunk : MonoBehaviour
     }
 
     public void Unload () {
+        Destroy(GetComponent<MeshFilter>().mesh);
         Destroy(gameObject);
-        // chunk meshes should be destroyed here too
     }
 
 }

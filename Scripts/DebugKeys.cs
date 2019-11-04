@@ -5,11 +5,21 @@ using System;
 
 public class DebugKeys : MonoBehaviour
 {
+    public GameObject GameUI;
+
     private void Update() {
+        if (Input.GetKeyDown(KeyCode.F1)) {
+            ToggleUI();
+        }
         if (Input.GetKeyDown(KeyCode.F2)) {
             Screenshot();
         }
     }
+
+    void ToggleUI () {
+        GameUI.SetActive(!GameUI.activeSelf);
+    }
+    
 
     void Screenshot () {
         DateTime date = DateTime.Now;

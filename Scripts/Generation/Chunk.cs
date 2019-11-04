@@ -7,8 +7,8 @@ public class Chunk : MonoBehaviour
     public const int ChunkSize = World.ChunkSize; // this should be the same value as the chunksize in the world script
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
-    public const float TextureAtlasSize = 0.25f; //0.0625f;
-    public const float UVBleedCompromise = 0.001953125f; //0.0009765625f;
+    public const float TextureAtlasSize = 0.125f;
+    public const float UVBleedCompromise = TextureAtlasSize / 256;
 
     public Chunk NorthNeighbor, SouthNeighbor, EastNeighbor, WestNeighbor, TopNeighbor, BottomNeighbor;
 
@@ -180,13 +180,13 @@ public class Chunk : MonoBehaviour
     }
 
     private void AddUvs (Vector2 texture) {
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * texture.y + UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * texture.y + TextureAtlasSize - UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * texture.y + TextureAtlasSize - UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * texture.y + UVBleedCompromise));
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise));
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise));
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise));
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise));
     }
 
-    public int GetTerrainNoise(int x, int y, Vector3 Offset) {
+    public static int GetTerrainNoise(int x, int y, Vector3 Offset) {
         float noiseMap = PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale, World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed)
                                     + (PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale / World.instance.RoughnessFactor, World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed) * (1f / World.instance.RoughnessFactor)
                                     + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale / (World.instance.RoughnessFactor * World.instance.RoughnessFactor), World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed) * (1f / (World.instance.RoughnessFactor * World.instance.RoughnessFactor)) * World.instance.RoughnessStrength);
@@ -195,7 +195,7 @@ public class Chunk : MonoBehaviour
         return Mathf.FloorToInt(noiseMap);
     }
 
-    private float PerlinNoise(int x, int y, int z, float scale, float yScale, float height, float power, int seed) {
+    private static float PerlinNoise(int x, int y, int z, float scale, float yScale, float height, float power, int seed) {
         float rVal = Noise.Noise.GetNoise(((double)x + seed) / scale, ((double)y + seed) / yScale, ((double)z + seed) / scale);
         rVal *= height;
 

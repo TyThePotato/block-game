@@ -25,6 +25,7 @@ public class World : MonoBehaviour
 
     public Material TerrainMaterial;
 
+    public Vector3 WorldSpawn;
     Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
 
     private void Awake() {
@@ -35,6 +36,10 @@ public class World : MonoBehaviour
         }
 
         Seed = Random.Range(int.MinValue, int.MaxValue);
+
+        // Set World Spawn
+        int _h = Chunk.GetTerrainNoise(0,0, Vector3.zero);
+        WorldSpawn = new Vector3(0,_h+1,0);
 
         Vector3Int RoundedPlayerPosition = Player.transform.position.RoundToInt();
         currentPlayerChunk = new Vector3Int ((int)(RoundedPlayerPosition.x / ChunkSize), (int)(RoundedPlayerPosition.y / ChunkSize), (int)(RoundedPlayerPosition.z / ChunkSize));
@@ -139,7 +144,7 @@ public class World : MonoBehaviour
 
         // in the event that the chunk's blocks weren't generated yet, we will check the noisemap to guess the blocks in the chunk
         if (parentChunk.blocks == null) {
-            if (y < parentChunk.GetTerrainNoise(x, z, Vector3.zero)) {
+            if (y < Chunk.GetTerrainNoise(x, z, Vector3.zero)) {
                 return BlockList.instance.blocks["Stone"];
             } else {
                 return BlockList.instance.blocks["Air"];
@@ -147,7 +152,7 @@ public class World : MonoBehaviour
         }
 
         if(parentChunk.blocks[x.Mod(ChunkSize), y.Mod(ChunkSize), z.Mod(ChunkSize)] == null) {
-            if (y < parentChunk.GetTerrainNoise(x, z, Vector3.zero)) {
+            if (y < Chunk.GetTerrainNoise(x, z, Vector3.zero)) {
                 return BlockList.instance.blocks["Stone"];
             } else {
                 return BlockList.instance.blocks["Air"];

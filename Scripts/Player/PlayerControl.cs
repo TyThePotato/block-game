@@ -12,7 +12,7 @@ public class PlayerControl : MonoBehaviour
     public float gravity;
     public bool allowFOVChange = true;
     public float lookSpeed;
-    public bool movementEnabled = true;
+    public bool movementEnabled = false;
     public bool cameraEnabled = true;
     public bool consoleOpen;
     public bool cursorLocked = true;
@@ -30,6 +30,9 @@ public class PlayerControl : MonoBehaviour
         _cam = Camera.main;
         _camTransform = _cam.gameObject.transform;
         _cc = GetComponent<CharacterController>();
+
+        transform.position = World.instance.WorldSpawn;
+        movementEnabled = true;
     }
 
     private void FixedUpdate() {
@@ -98,12 +101,12 @@ public class PlayerControl : MonoBehaviour
     }
 
     [Command("tp")]
-    void SetPosition (float x, float y, float z) {
-        transform.position = new Vector3(x,y,z);
+    public void SetPosition (float x, float y, float z) {
+        transform.position.Set(x,y,z);
     }
 
     [Command("fov")]
-    void SetFOV (float fov) {
+    public void SetFOV (float fov) {
         FOV = fov;
     }
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.11416485, g: 0.17935494, b: 0.2927181, a: 1}
+  m_IndirectSpecularColor: {r: 0.38242823, g: 0.49063426, b: 0.64368594, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5010,7 +5010,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &139345485
 MonoBehaviour:
@@ -6496,6 +6496,7 @@ MonoBehaviour:
   RoughnessStrength: 0.35
   Player: {fileID: 2070935360}
   TerrainMaterial: {fileID: 2100000, guid: 8186c606a7a5470479e074fbdd834058, type: 2}
+  WorldSpawn: {x: 0, y: 0, z: 0}
 --- !u!4 &1255499960
 Transform:
   m_ObjectHideFlags: 0
@@ -6508,7 +6509,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1255499961
 MonoBehaviour:
@@ -6833,6 +6834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f241b04aa49a04bbe6b4a31dee740c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameUI: {fileID: 1713134952}
 --- !u!1 &1282765572
 GameObject:
   m_ObjectHideFlags: 0
@@ -7384,7 +7386,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 45, y: 45, z: 0}
 --- !u!1001 &1876782505
 PrefabInstance:
@@ -7875,7 +7877,7 @@ MonoBehaviour:
   gravity: 20
   allowFOVChange: 1
   lookSpeed: 3
-  movementEnabled: 1
+  movementEnabled: 0
   cameraEnabled: 1
   consoleOpen: 0
   cursorLocked: 1
@@ -7916,7 +7918,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2070935360}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 24, y: 512, z: 24}
+  m_LocalPosition: {x: 24, y: 300, z: 24}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 963194228}
@@ -11368,6 +11370,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: DebugUI
       objectReference: {fileID: 0}
+    - target: {fileID: 1585782579811686153, guid: d625565b9e69bef4381b022b524bcddf,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1585782579811686150, guid: d625565b9e69bef4381b022b524bcddf,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -11421,6 +11428,21 @@ PrefabInstance:
     - target: {fileID: 1585782579811686150, guid: d625565b9e69bef4381b022b524bcddf,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1585782580559221403, guid: d625565b9e69bef4381b022b524bcddf,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4424639174322568169, guid: d625565b9e69bef4381b022b524bcddf,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1585782580720658528, guid: d625565b9e69bef4381b022b524bcddf,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

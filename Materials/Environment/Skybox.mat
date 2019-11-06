@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BackTex_01:
-        m_Texture: {fileID: 2800000, guid: 16c4243807886a04dbbcb777806c5b59, type: 3}
+        m_Texture: {fileID: 2800000, guid: fbddb2845c948984397ae918f7568976, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BackTex_02:
@@ -44,7 +44,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DownTex_01:
-        m_Texture: {fileID: 2800000, guid: a33ce2b88e6af574ea30808871a61640, type: 3}
+        m_Texture: {fileID: 2800000, guid: bf9715d3d95d5c947b7641f7e4182952, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DownTex_02:
@@ -56,7 +56,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FrontTex_01:
-        m_Texture: {fileID: 2800000, guid: 569c870bdaf96374f98aa4c7a05d3a57, type: 3}
+        m_Texture: {fileID: 2800000, guid: 019fa683f3ca25143bd013631693b5d0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FrontTex_02:
@@ -64,7 +64,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LeftTex_01:
-        m_Texture: {fileID: 2800000, guid: 569679e95ebdccf4e947af1359522a42, type: 3}
+        m_Texture: {fileID: 2800000, guid: a7bf071c1f2750f4887bca0bbe969ed2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LeftTex_02:
@@ -88,7 +88,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RightTex_01:
-        m_Texture: {fileID: 2800000, guid: ea4a7f083ecb4b946bac3754cba78c49, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0d614d7b554c5d142bfd1a9472509bf9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RightTex_02:
@@ -96,7 +96,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _UpTex_01:
-        m_Texture: {fileID: 2800000, guid: 7046a0b4cc52e6e42b431fd577ba1de8, type: 3}
+        m_Texture: {fileID: 2800000, guid: ce94de57af0c0d944ac68ce45f535726, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _UpTex_02:
@@ -116,7 +116,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Rotation: 10.525856
+    - _Rotation: 185.62587
     - _SkyBlend: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

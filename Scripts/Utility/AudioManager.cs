@@ -8,7 +8,7 @@ public class AudioManager : MonoBehaviour
 
     public AudioClip[] Songs;
 
-    public AudioClip[] GrassMaterial, DirtMaterial, RockMaterial, WoodMaterial;
+    public AudioClip[] GrassMaterial, DirtMaterial, RockMaterial, WoodMaterial, SandMaterial, GravelMaterial, ClothMaterial, SnowMaterial;
     public Dictionary<string, AudioClip[]> MaterialSounds;
 
     private AudioSource audioSource;
@@ -25,6 +25,10 @@ public class AudioManager : MonoBehaviour
         MaterialSounds.Add("dirt", DirtMaterial);
         MaterialSounds.Add("rock", RockMaterial);
         MaterialSounds.Add("wood", WoodMaterial);
+        MaterialSounds.Add("sand", SandMaterial);
+        MaterialSounds.Add("gravel", GravelMaterial);
+        MaterialSounds.Add("cloth", ClothMaterial);
+        MaterialSounds.Add("snow", SnowMaterial);
     }
 
     private void Start() {
@@ -32,9 +36,11 @@ public class AudioManager : MonoBehaviour
     }
 
     private void Update() {
+        /*
         if (!audioSource.isPlaying) {
             PlaySong();
         }
+        */
     }
 
     private void PlaySong() {

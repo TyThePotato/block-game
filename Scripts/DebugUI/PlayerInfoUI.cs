@@ -5,6 +5,7 @@ public class PlayerInfoUI : MonoBehaviour
 {
     public TextMeshProUGUI playerPosition;
     public TextMeshProUGUI lookingAt;
+    public TextMeshProUGUI biome;
 
     private World world;
     private Transform player;
@@ -17,9 +18,8 @@ public class PlayerInfoUI : MonoBehaviour
     }
 
     private void Update() {
-        //Vector3 playerLegPosition = player.position;
-        //playerLegPosition.y -= 0.75f;
-        playerPosition.SetText("XYZ: " + player.transform.position.FloorToInt());
+        playerPosition.SetText("XYZ: " + player.position.FloorToInt());
         lookingAt.SetText($"Looking at: {bb.lookingAt.name} {bb.lookingAtPos}");
+        biome.SetText($"Biome: {Chunk.GetBiome((int)player.position.x, (int)player.position.z, Vector3.zero).name}");
     }
 }

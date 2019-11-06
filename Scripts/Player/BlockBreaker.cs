@@ -29,20 +29,6 @@ public class BlockBreaker : MonoBehaviour
         player = transform;
     }
 
-    private void Update() {
-        if (CanInteract) {
-            if (Input.GetMouseButtonDown(0) && !lookingAt.invincible) {
-                // l click
-                BreakBlock();
-            }
-
-            if (Input.GetMouseButtonDown(1) && currentlySelectedBlock != null) {
-                // r click
-                PlaceBlock();
-            }
-        }
-    }
-
     private void LateUpdate() {
         SelectionQuadParent.gameObject.SetActive(false);
         // show block cursor is hovering over
@@ -59,14 +45,16 @@ public class BlockBreaker : MonoBehaviour
         }
     }
 
-    void BreakBlock () {
+    public void BreakBlock (bool BypassInvincibility) {
+        if (!BypassInvincibility && lookingAt.invincible) return;
         RaycastHit hit;
         if(Physics.Raycast(cam.gameObject.transform.position, cam.gameObject.transform.forward, out hit, range, layerMask)) {
             ReplaceBlock(hit, BlockList.instance.blocks["Air"], true);
         }
     }
 
-    void PlaceBlock () {
+    public void PlaceBlock () {
+        if (currentlySelectedBlock == null) return;
         RaycastHit hit;
         if(Physics.Raycast(cam.gameObject.transform.position, cam.gameObject.transform.forward, out hit, range, layerMask)) {
             AddBlock(hit, currentlySelectedBlock, true);

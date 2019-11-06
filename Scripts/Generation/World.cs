@@ -12,12 +12,8 @@ public class World : MonoBehaviour
     public const int ChunkSize = 16; // how many blocks in each direction are in a chunk, used for correctly positioning chunks
 
     public int Seed;
-    public float BaseScale;
+    public bool RandomSeed = true;
     public AnimationCurve HeightCurve;
-    public float MaxHeight;
-    public float Multiplier;
-    public float RoughnessFactor;
-    public float RoughnessStrength;
 
     public GameObject Player;
     private Vector3Int previousPlayerChunk = Vector3Int.zero;
@@ -35,15 +31,20 @@ public class World : MonoBehaviour
             Destroy(this);
         }
 
-        Seed = Random.Range(int.MinValue, int.MaxValue);
+        if(RandomSeed)
+            Seed = Random.Range(int.MinValue, int.MaxValue);
 
-        // Set World Spawn
-        int _h = Chunk.GetTerrainNoise(0,0, Vector3.zero);
-        WorldSpawn = new Vector3(0,_h+1,0);
+        WorldSpawn = new Vector3(0.5f,300,0.5f);
 
         Vector3Int RoundedPlayerPosition = Player.transform.position.RoundToInt();
         currentPlayerChunk = new Vector3Int ((int)(RoundedPlayerPosition.x / ChunkSize), (int)(RoundedPlayerPosition.y / ChunkSize), (int)(RoundedPlayerPosition.z / ChunkSize));
         LoadChunksAroundPlayer(currentPlayerChunk);
+    }
+
+    private void Start() {
+        // Set World Spawn
+        int _h = Chunk.GetTerrainNoise(0,0, Vector3.zero);
+        WorldSpawn = new Vector3(0.5f,_h+1,0.5f);
     }
 
     void Update () {
@@ -205,6 +206,11 @@ public class World : MonoBehaviour
     public void SetBlock(int x, int y, int z, string block) {
         SetBlock(x,y,z,BlockList.instance.blocks[block]);
         UpdateChunk(x,y,z,true);
+    }
+
+    [Command("renderdistance")]
+    public void SetRenderDistance(int distance) {
+        ChunkRenderRadius = distance;
     }
 
     public void UpdateChunk (int x, int y, int z, bool updateAdjacentBlocks) {

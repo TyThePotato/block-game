@@ -8,7 +8,7 @@ public class Chunk : MonoBehaviour
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
     public const float TextureAtlasSize = 0.125f;
-    public const float UVBleedCompromise = TextureAtlasSize / 256;
+    public const float UVBleedCompromise = TextureAtlasSize / 128;
 
     public Chunk NorthNeighbor, SouthNeighbor, EastNeighbor, WestNeighbor, TopNeighbor, BottomNeighbor;
 
@@ -36,15 +36,16 @@ public class Chunk : MonoBehaviour
         for (int x = 0; x < ChunkSize; x++) {
             for (int z = 0; z < ChunkSize; z++) {
 
+                Biome _b = GetBiome(x,z,transform.position);
                 int _h = GetTerrainNoise(x, z, transform.position);
                 int dirtLevel = Random.Range(_h-5, _h-6);
                 int bedrockLevel = Random.Range(0,3);
 
                 for (int y = 0; y < ChunkSize; y++) {
                     if (y+transform.position.y == _h-1) {
-                        SetBlock(x, y, z, BlockList.instance.blocks["Grass"]);
+                        SetBlock(x, y, z, BlockList.instance.blocks[_b.surfaceBlock]);
                     } else if (y + transform.position.y < _h-1 && y + transform.position.y > dirtLevel) {
-                        SetBlock(x, y, z, BlockList.instance.blocks["Dirt"]);
+                        SetBlock(x, y, z, BlockList.instance.blocks[_b.subSurfaceBlock]);
                     } else if (y + transform.position.y <= dirtLevel) {
                         SetBlock(x, y, z, BlockList.instance.blocks["Stone"]);
                     } else {
@@ -187,12 +188,35 @@ public class Chunk : MonoBehaviour
     }
 
     public static int GetTerrainNoise(int x, int y, Vector3 Offset) {
-        float noiseMap = PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale, World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed)
-                                    + (PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale / World.instance.RoughnessFactor, World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed) * (1f / World.instance.RoughnessFactor)
-                                    + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, World.instance.BaseScale / (World.instance.RoughnessFactor * World.instance.RoughnessFactor), World.instance.BaseScale, World.instance.MaxHeight, World.instance.Multiplier, World.instance.Seed) * (1f / (World.instance.RoughnessFactor * World.instance.RoughnessFactor)) * World.instance.RoughnessStrength);
+        float biomenoise = GetBiomeNoise(x,y,Offset);
+        float multipliedBiomeNoise = biomenoise * BiomeList.instance.biomesArray.Length;
+        Biome b1 = BiomeList.instance.biomesArray[(int)multipliedBiomeNoise];
+        Biome b2 = BiomeList.instance.biomesArray[Mathf.Clamp((int)multipliedBiomeNoise+1, 0, BiomeList.instance.biomesArray.Length-1)];
 
-        noiseMap /= World.instance.HeightCurve.Evaluate(noiseMap / World.instance.MaxHeight);
-        return Mathf.FloorToInt(noiseMap);
+        float noiseMap1 = PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b1.scale, b1.scale, b1.height, b1.multiplier, World.instance.Seed)
+                                    + (PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b1.scale / b1.roughnessFactor, b1.scale, b1.height, b1.multiplier, World.instance.Seed) * (1f / b1.roughnessFactor)
+                                    + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b1.scale / (b1.roughnessFactor * b1.roughnessFactor), b1.scale, b1.height, b1.multiplier, World.instance.Seed) * (1f / (b1.roughnessFactor * b1.roughnessFactor)) * b1.roughnessStrength);
+        noiseMap1 /= World.instance.HeightCurve.Evaluate(noiseMap1 / b1.height);
+
+        float noiseMap2 = PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b2.scale, b2.scale, b2.height, b2.multiplier, World.instance.Seed)
+                                    + (PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b2.scale / b2.roughnessFactor, b2.scale, b2.height, b2.multiplier, World.instance.Seed) * (1f / b2.roughnessFactor)
+                                    + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b2.scale / (b2.roughnessFactor * b2.roughnessFactor), b2.scale, b2.height, b2.multiplier, World.instance.Seed) * (1f / (b2.roughnessFactor * b2.roughnessFactor)) * b2.roughnessStrength);
+        noiseMap2 /= World.instance.HeightCurve.Evaluate(noiseMap2 / b2.height);
+        
+        float smoothedNoiseMap = Mathf.Lerp(noiseMap1, noiseMap2, multipliedBiomeNoise - (int)multipliedBiomeNoise);
+
+        return (int)smoothedNoiseMap;
+    }
+
+    public static float GetBiomeNoise(int x, int y, Vector3 Offset) {
+        float nm = PerlinNoise(x+(int)Offset.x,0,y+(int)Offset.z,384,384,1,1,World.instance.Seed);
+        return nm;
+    }
+
+    public static Biome GetBiome (int x, int y, Vector3 Offset) {
+        float nm = GetBiomeNoise(x,y,Offset);
+        int biomeIndex = (int)(nm * BiomeList.instance.biomesArray.Length);
+        return BiomeList.instance.biomesArray[biomeIndex];
     }
 
     private static float PerlinNoise(int x, int y, int z, float scale, float yScale, float height, float power, int seed) {

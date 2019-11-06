@@ -1,0 +1,34 @@
+{
+	"biomes":[
+    {
+        "name":"Mountains", 
+        "scale":384,
+        "height":512,
+        "multiplier":1,
+        "roughnessFactor":16,
+        "roughnessStrength":0.35,
+        "surfaceBlock": "Grass",
+        "subSurfaceBlock": "Stone"
+    },
+	{
+        "name":"Rolling Hills", 
+        "scale":768,
+        "height":50,
+        "multiplier":1,
+        "roughnessFactor":2,
+        "roughnessStrength":0.1,
+        "surfaceBlock": "Grass",
+        "subSurfaceBlock": "Dirt"
+    },
+    {
+        "name":"Desert", 
+        "scale":512,
+        "height":100,
+        "multiplier":1,
+        "roughnessFactor":2,
+        "roughnessStrength":0.1,
+        "surfaceBlock": "Sand",
+        "subSurfaceBlock": "Sand"
+    }
+  ]
+}

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using QFSW.QC;
 
 public class DebugKeys : MonoBehaviour
 {
     public GameObject GameUI;
+    public Material TerrainMaterial;
 
     private void Update() {
         if (Input.GetKeyDown(KeyCode.F1)) {
@@ -36,5 +38,9 @@ public class DebugKeys : MonoBehaviour
         }
         ScreenCapture.CaptureScreenshot(filename+extension);
         Debug.Log($"Saved screenshot to {filename+extension}");
+    }
+
+    void SetMaterialProperty (string property, float value) {
+        TerrainMaterial.SetFloat(property, value);
     }
 }

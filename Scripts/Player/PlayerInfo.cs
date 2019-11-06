@@ -6,6 +6,7 @@ using QFSW.QC;
 
 public class PlayerInfo : MonoBehaviour
 {
+    public int Health;
     public int HotbarIndex;
     public RectTransform HotbarSelector;
 
@@ -16,7 +17,9 @@ public class PlayerInfo : MonoBehaviour
     public Item[] HotbarItems;
     public RawImage[] HotbarIcons;
     public Transform handPoint;
+    public Animator handAnimator;
     public bool CanUseHotbar = true;
+    public bool CanInteract = true;
 
     private int oldHotbarIndex = -1;
 
@@ -48,6 +51,20 @@ public class PlayerInfo : MonoBehaviour
     }
 
     private void Update() {
+        if (CanInteract) {
+            if (Input.GetMouseButtonDown(0)) {
+                // l click
+                bb.BreakBlock(false);
+                SwingHand();
+            }
+
+            if (Input.GetMouseButtonDown(1)) {
+                // r click
+                bb.PlaceBlock();
+                SwingHand();
+            }
+        }
+
         if (CanUseHotbar) {
             for (int k = 0; k < 10; k++) {
                 if (Input.GetKeyDown(k.ToString())) {
@@ -68,17 +85,20 @@ public class PlayerInfo : MonoBehaviour
         }
 
         if(HotbarIndex != oldHotbarIndex) {
-            if (HotbarItems[HotbarIndex] != null && HotbarItems[HotbarIndex].itemType == ItemType.Block) {
-                bb.currentlySelectedBlock = BlockList.instance.blocks[HotbarItems[HotbarIndex].name];
-            } else {
-                bb.currentlySelectedBlock = null;
-            }
-            
-            SetItemInHand(HotbarItems[HotbarIndex]);
+            UpdateHeldItem();
             HotbarSelector.anchoredPosition = new Vector2(-432 + (96 * HotbarIndex), 0); // moves the hotbar selection box to the correct spot using epic math
         }
 
         oldHotbarIndex = HotbarIndex;
+    }
+
+    void UpdateHeldItem () {
+        if (HotbarItems[HotbarIndex] != null && HotbarItems[HotbarIndex].itemType == ItemType.Block) {
+            bb.currentlySelectedBlock = BlockList.instance.blocks[HotbarItems[HotbarIndex].name];
+        } else {
+            bb.currentlySelectedBlock = null;
+        }
+        SetItemInHand(HotbarItems[HotbarIndex]);
     }
 
     void SetItemInHand (Item item) {
@@ -105,6 +125,7 @@ public class PlayerInfo : MonoBehaviour
         if (ItemList.instance.items.TryGetValue(item, out Item _i)) {
             HotbarItems[_s-1] = _i;
             UpdateHotbar();
+            UpdateHeldItem();
             QuantumConsole.print($"Successfully set slot {_s} to '{item}'");
         } else {
             QuantumConsole.print("Cannot set hotbar slot, chosen item doesn't exist.");
@@ -114,18 +135,20 @@ public class PlayerInfo : MonoBehaviour
     private void ConsoleOpen () {
         playerControl.movementEnabled = false;
         playerControl.cameraEnabled = false;
-        playerControl.consoleOpen = true;
         playerControl.cursorLocked = false;
-        bb.CanInteract = false;
+        CanInteract = false;
         CanUseHotbar = false;
     }
 
     private void ConsoleClose () {
-        playerControl.consoleOpen = false;
         playerControl.movementEnabled = true;
         playerControl.cameraEnabled = true;
         playerControl.cursorLocked = true;
-        bb.CanInteract = true;
+        CanInteract = true;
         CanUseHotbar = true;
+    }
+
+    void SwingHand () {
+        handAnimator.Play("Swing");
     }
 }

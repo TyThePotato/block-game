@@ -14,8 +14,8 @@ public class PlayerControl : MonoBehaviour
     public float lookSpeed;
     public bool movementEnabled = false;
     public bool cameraEnabled = true;
-    public bool consoleOpen;
     public bool cursorLocked = true;
+    public Vector3 SpawnPoint;
 
     private float _speedMultiplier;
     private bool _playerMoving;
@@ -31,11 +31,11 @@ public class PlayerControl : MonoBehaviour
         _camTransform = _cam.gameObject.transform;
         _cc = GetComponent<CharacterController>();
 
-        transform.position = World.instance.WorldSpawn;
-        movementEnabled = true;
+        SpawnPoint = World.instance.WorldSpawn;
+        SetPosition(SpawnPoint.x, SpawnPoint.y, SpawnPoint.z);
     }
 
-    private void FixedUpdate() {
+    private void Update() {
         // MOVEMENT
         if (!movementEnabled) {
             return;
@@ -76,10 +76,8 @@ public class PlayerControl : MonoBehaviour
 
         _moveDirection.y -= gravity * Time.deltaTime;
         _cc.Move(_moveDirection * Time.deltaTime);
-    }
 
-    private void Update() {
-
+        // cursor lock stuff
         if (cursorLocked == true) {
             Cursor.lockState = CursorLockMode.Locked;
         } else {
@@ -97,12 +95,11 @@ public class PlayerControl : MonoBehaviour
         _camRotation.y = Mathf.Clamp(_camRotation.y, -89, 89);
 
         _camTransform.rotation = Quaternion.Euler(_camRotation.y, _camRotation.x, 0);
-
     }
 
     [Command("tp")]
     public void SetPosition (float x, float y, float z) {
-        transform.position.Set(x,y,z);
+        transform.position = new Vector3(x,y,z);
     }
 
     [Command("fov")]

@@ -36,7 +36,7 @@ public class Chunk : MonoBehaviour
         for (int x = 0; x < ChunkSize; x++) {
             for (int z = 0; z < ChunkSize; z++) {
 
-                Biome _b = GetBiome(x,z,transform.position);
+                Biome _b = GetDitheredBiome(x,z,transform.position);
                 int _h = GetTerrainNoise(x, z, transform.position);
                 int dirtLevel = Random.Range(_h-5, _h-6);
                 int bedrockLevel = Random.Range(0,3);
@@ -203,6 +203,7 @@ public class Chunk : MonoBehaviour
                                     + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b2.scale / (b2.roughnessFactor * b2.roughnessFactor), b2.scale, b2.height, b2.multiplier, World.instance.Seed) * (1f / (b2.roughnessFactor * b2.roughnessFactor)) * b2.roughnessStrength);
         noiseMap2 /= World.instance.HeightCurve.Evaluate(noiseMap2 / b2.height);
         
+        //float smoothedNoiseMap = Mathf.Lerp(noiseMap1, noiseMap2, multipliedBiomeNoise - (int)multipliedBiomeNoise);
         float smoothedNoiseMap = Mathf.Lerp(noiseMap1, noiseMap2, multipliedBiomeNoise - (int)multipliedBiomeNoise);
 
         return (int)smoothedNoiseMap;
@@ -211,6 +212,22 @@ public class Chunk : MonoBehaviour
     public static float GetBiomeNoise(int x, int y, Vector3 Offset) {
         float nm = PerlinNoise(x+(int)Offset.x,0,y+(int)Offset.z,384,384,1,1,World.instance.Seed);
         return nm;
+    }
+
+    public static Biome GetDitheredBiome (int x, int y, Vector3 Offset) {
+        float nm = GetBiomeNoise(x,y,Offset);
+        float multipliedValue = nm * BiomeList.instance.biomesArray.Length;
+        int biome1Index = (int)multipliedValue;
+        int biome2Index = Mathf.Clamp((int)multipliedValue+1, 0, BiomeList.instance.biomesArray.Length-1);
+        Biome biome1 = BiomeList.instance.biomesArray[biome1Index];
+        Biome biome2 = BiomeList.instance.biomesArray[biome2Index];
+        float smoothingValue = multipliedValue - biome1Index;
+        if (smoothingValue > 0.8) {
+            float ditherAmount = Random.Range(0f,0.1f);
+            ditherAmount += 0.8f;
+            if (ditherAmount < smoothingValue) return biome2;
+        }
+        return biome1;
     }
 
     public static Biome GetBiome (int x, int y, Vector3 Offset) {

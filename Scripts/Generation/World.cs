@@ -44,7 +44,7 @@ public class World : MonoBehaviour
     private void Start() {
         // Set World Spawn
         int _h = Chunk.GetTerrainNoise(0,0, Vector3.zero);
-        WorldSpawn = new Vector3(0.5f,_h+1,0.5f);
+        WorldSpawn = new Vector3(0.5f,_h+10,0.5f);
     }
 
     void Update () {

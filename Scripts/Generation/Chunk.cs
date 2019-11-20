@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using LibNoise.Unity;
+using LibNoise.Unity.Generator;
 
 public class Chunk : MonoBehaviour
 {
@@ -8,7 +10,7 @@ public class Chunk : MonoBehaviour
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
     public const float TextureAtlasSize = 0.125f;
-    public const float UVBleedCompromise = TextureAtlasSize / 128;
+    public const float UVBleedCompromise = 0.002f;
 
     public Chunk NorthNeighbor, SouthNeighbor, EastNeighbor, WestNeighbor, TopNeighbor, BottomNeighbor;
 
@@ -181,10 +183,10 @@ public class Chunk : MonoBehaviour
     }
 
     private void AddUvs (Vector2 texture) {
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise));
-        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise));
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise)); // Top left corner
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise)); // bottom left corner
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise)); // bottom right corner
+        uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise)); // top right corner
     }
 
     public static int GetTerrainNoise(int x, int y, Vector3 Offset) {
@@ -203,15 +205,15 @@ public class Chunk : MonoBehaviour
                                     + PerlinNoise(x + (int)Offset.x, 0, y + (int)Offset.z, b2.scale / (b2.roughnessFactor * b2.roughnessFactor), b2.scale, b2.height, b2.multiplier, World.instance.Seed) * (1f / (b2.roughnessFactor * b2.roughnessFactor)) * b2.roughnessStrength);
         noiseMap2 /= World.instance.HeightCurve.Evaluate(noiseMap2 / b2.height);
         
-        //float smoothedNoiseMap = Mathf.Lerp(noiseMap1, noiseMap2, multipliedBiomeNoise - (int)multipliedBiomeNoise);
         float smoothedNoiseMap = Mathf.Lerp(noiseMap1, noiseMap2, multipliedBiomeNoise - (int)multipliedBiomeNoise);
 
         return (int)smoothedNoiseMap;
     }
 
     public static float GetBiomeNoise(int x, int y, Vector3 Offset) {
-        float nm = PerlinNoise(x+(int)Offset.x,0,y+(int)Offset.z,384,384,1,1,World.instance.Seed);
-        return nm;
+        //float nm = PerlinNoise(x+(int)Offset.x,0,y+(int)Offset.z,384,384,1,1,World.instance.Seed);
+        float nm = World.instance.vore.GetNoise(x + (int)Offset.x, y + (int)Offset.z);
+        return (1 + nm)/2;
     }
 
     public static Biome GetDitheredBiome (int x, int y, Vector3 Offset) {

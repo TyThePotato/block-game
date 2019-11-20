@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using QFSW.QC;
+using LibNoise.Unity.Generator;
 
 public class World : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class World : MonoBehaviour
     public int Seed;
     public bool RandomSeed = true;
     public AnimationCurve HeightCurve;
+
+    public FastNoise vore = new FastNoise(); // i hate this
 
     public GameObject Player;
     private Vector3Int previousPlayerChunk = Vector3Int.zero;
@@ -35,6 +38,11 @@ public class World : MonoBehaviour
             Seed = Random.Range(int.MinValue, int.MaxValue);
 
         WorldSpawn = new Vector3(0.5f,300,0.5f);
+
+        vore.SetNoiseType(FastNoise.NoiseType.Value);
+        vore.SetCellularJitter(0f);
+        vore.SetSeed(Seed);
+        vore.SetFrequency(0.05f);
 
         Vector3Int RoundedPlayerPosition = Player.transform.position.RoundToInt();
         currentPlayerChunk = new Vector3Int ((int)(RoundedPlayerPosition.x / ChunkSize), (int)(RoundedPlayerPosition.y / ChunkSize), (int)(RoundedPlayerPosition.z / ChunkSize));
@@ -65,6 +73,7 @@ public class World : MonoBehaviour
             for (int y = 0; y <= ChunkRenderRadius*2; y++) {
                 for (int z = 0; z <= ChunkRenderRadius*2; z++) {
                     Vector3Int p = new Vector3Int(playerChunkPos.x-ChunkRenderRadius+x, playerChunkPos.y-ChunkRenderRadius+y, playerChunkPos.z-ChunkRenderRadius+z);
+                    if(p.y < 0) continue;
                     if (!chunksAroundPlayer.Contains(p)) {
                         chunksAroundPlayer.Add(p);
                     }
@@ -140,7 +149,7 @@ public class World : MonoBehaviour
 
         // when GetChunkFromBlockCoords is supplied coordinates that are outside the world, it will return a null chunk, this is normal behavior
         if (parentChunk == null) {
-            return BlockList.instance.blocks["Air"]; // this should normally be set to stone, its only set to air for debugging purposes because that allows you to see the sides of blocks that face the edge of the world
+            return BlockList.instance.blocks["Stone"]; // this should normally be set to stone, its only set to air for debugging purposes because that allows you to see the sides of blocks that face the edge of the world
         }
 
         // in the event that the chunk's blocks weren't generated yet, we will check the noisemap to guess the blocks in the chunk

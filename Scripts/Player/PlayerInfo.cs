@@ -31,7 +31,7 @@ public class PlayerInfo : MonoBehaviour
         HotbarItems[0] = ItemList.instance.items["Grass"];
         HotbarItems[1] = ItemList.instance.items["Dirt"];
         HotbarItems[2] = ItemList.instance.items["Stone"];
-        HotbarItems[3] = ItemList.instance.items["Bedrock"];
+        HotbarItems[3] = ItemList.instance.items["Sand"];
         HotbarItems[4] = ItemList.instance.items["Wood"];
         HotbarItems[5] = ItemList.instance.items["Stone Pickaxe"];
         HotbarItems[6] = ItemList.instance.items["Iron Pickaxe"];

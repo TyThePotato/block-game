@@ -39,7 +39,7 @@ public class World : MonoBehaviour
 
         WorldSpawn = new Vector3(0.5f,300,0.5f);
 
-        vore.SetNoiseType(FastNoise.NoiseType.Value);
+        vore.SetNoiseType(FastNoise.NoiseType.Perlin);
         vore.SetCellularJitter(0f);
         vore.SetSeed(Seed);
         vore.SetFrequency(0.05f);
@@ -175,13 +175,13 @@ public class World : MonoBehaviour
     }
 
     public Chunk GetChunkFromBlockCoords(int x, int y, int z) {
-        int _x = x;
-        int _y = y;
-        int _z = z;
+        float _x = x;
+        float _y = y;
+        float _z = z;
         if (_x < 0) _x-=ChunkSize;
         if (_y < 0) _y-=ChunkSize;
         if (_z < 0) _z-=ChunkSize;
-        Vector3Int cpos = new Vector3Int((int)((float)_x / ChunkSize), (int)((float)_y / ChunkSize), (int)((float)_z / ChunkSize));
+        Vector3Int cpos = new Vector3Int((int)(_x / ChunkSize), (int)(_y / ChunkSize), (int)(_z / ChunkSize));
 
         // make sure the position is even in the world
         if(!chunks.ContainsKey(cpos)) {
@@ -215,6 +215,11 @@ public class World : MonoBehaviour
     public void SetBlock(int x, int y, int z, string block) {
         SetBlock(x,y,z,BlockList.instance.blocks[block]);
         UpdateChunk(x,y,z,true);
+    }
+
+    [Command("getblock")]
+    public string GetBlockCmd (int x, int y, int z) {
+        return (GetBlock(x, y, z).name);
     }
 
     [Command("renderdistance")]

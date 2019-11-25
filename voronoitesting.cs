@@ -14,6 +14,9 @@ public class voronoitesting : MonoBehaviour
     public float xOrg;
     public float yOrg;
 
+    public Renderer r1;
+    public Renderer r2;
+
     // The number of cycles of the basic noise pattern that are repeated
     // over the width and height of the texture.
 
@@ -28,32 +31,37 @@ public class voronoitesting : MonoBehaviour
     public bool useDist;
 
     private Texture2D noiseTex;
+    private Texture2D noiseTex2;
     private Color[] pix;
-    private Renderer rend;
     private FastNoise vore = new FastNoise();
 
     void Start() {
-        rend = GetComponent<Renderer>();
 
         // Set up the texture and a Color array to hold pixels during processing.
         noiseTex = new Texture2D(pixWidth, pixHeight);
+        noiseTex2 = new Texture2D(pixWidth, pixHeight);
+
         noiseTex.filterMode = FilterMode.Point;
+        noiseTex2.filterMode = FilterMode.Point;
 
         pix = new Color[noiseTex.width * noiseTex.height];
-        rend.material.mainTexture = noiseTex;
+        r1.material.mainTexture = noiseTex;
+        r1.material.mainTexture = noiseTex2;
 
         CalcNoise();
     }
 
-    void CalcNoise() {
+    void CalcNoise () {
+
+    }
+
+    void CalcFastNoise() {
         // For each pixel in the texture...
         float y = 0.0F;
 
         vore.SetNoiseType(noiseType);
         vore.SetFrequency(freq);
         vore.SetSeed(seed);
-        vore.SetCellularJitter(jitter);
-        vore.SetInterp(FastNoise.Interp.Hermite);
 
         while (y < noiseTex.height) {
             float x = 0.0F;
@@ -73,7 +81,20 @@ public class voronoitesting : MonoBehaviour
         noiseTex.Apply();
     }
 
+    /*
+    void  CalcNoiseNoise() {
+        //int x, int y, int z, float scale, float yScale, float height, float power, int seed
+        float rVal = Noise.Noise.GetNoise(((double)x + seed) / scale, ((double)y + seed) / yScale, ((double)z + seed) / scale);
+        rVal *= height;
+
+        if (System.Math.Abs(power) > 0) {
+            rVal = Mathf.Pow(rVal, power);
+        }
+        return rVal;
+    }
+
     void Update() {
         CalcNoise();
     }
+    */
 }

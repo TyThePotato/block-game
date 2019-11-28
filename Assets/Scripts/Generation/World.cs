@@ -80,6 +80,7 @@ public class World : MonoBehaviour
                 }
             }
         }
+
         List<Vector3Int> chunksToUnload = new List<Vector3Int>();
         List<Vector3Int> chunksToLoad = new List<Vector3Int>();
 
@@ -98,30 +99,35 @@ public class World : MonoBehaviour
         }
 
         for (int i = 0; i < chunksToUnload.Count; i++) {
-            UnloadChunk(chunksToUnload[i].x,chunksToUnload[i].y,chunksToUnload[i].z);
+            UnloadChunk(chunksToUnload[i].x, chunksToUnload[i].y, chunksToUnload[i].z);
         }
 
         for (int i = 0; i < chunksToLoad.Count; i++) {
-            LoadChunk(chunksToLoad[i].x,chunksToLoad[i].y,chunksToLoad[i].z);
+            LoadChunk(chunksToLoad[i].x, chunksToLoad[i].y, chunksToLoad[i].z);
         }
 
         SetAdjacentChunkReferences();
-
     }
 
     void GenerateChunk(int x, int y, int z) {
         GameObject chunk = new GameObject($"Chunk_{x},{y},{z}"); // create new chunk
         chunk.isStatic = true;
-        chunk.transform.position = new Vector3Int(x * ChunkSize, y * ChunkSize, z * ChunkSize); // position chunk 
 
-        chunk.AddComponent<MeshFilter>(); // add mesh to chunk
+        Vector3Int chunkPos = new Vector3Int(x, y, z);
+        Vector3Int worldPos = chunkPos * ChunkSize;
+        chunk.transform.position = worldPos; // position chunk 
+
+        Mesh chunkMesh = new Mesh(); // create chunk mesh
+        chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // set chunk mesh to use 32 bit indices as chunk vertices can possibly be > 65565 (16 bit index format)
+        chunk.AddComponent<MeshFilter>().sharedMesh = chunkMesh; // add mesh to chunk
         chunk.AddComponent<MeshRenderer>().material = TerrainMaterial; // add renderer to chunk so you can actually see it
-        chunk.AddComponent<MeshCollider>();
+        chunk.AddComponent<MeshCollider>(); // eventually when some blocks are able to have different collision meshes or no collision this will have to be its own mesh
         chunk.layer = 8;
 
         // actual chunk stuff
-        Vector3Int chunkPos = new Vector3Int(x,y,z);
-        chunks.Add(chunkPos, chunk.AddComponent<Chunk>());
+        Chunk c = chunk.AddComponent<Chunk>();
+        c.ChunkPosition = worldPos;
+        chunks.Add(chunkPos, c);
     }
 
     void SetAdjacentChunkReferences () {
@@ -175,18 +181,13 @@ public class World : MonoBehaviour
     }
 
     public Chunk GetChunkFromBlockCoords(int x, int y, int z) {
-        float _x = x;
-        float _y = y;
-        float _z = z;
-        if (_x < 0) _x-=ChunkSize;
-        if (_y < 0) _y-=ChunkSize;
-        if (_z < 0) _z-=ChunkSize;
-        Vector3Int cpos = new Vector3Int((int)(_x / ChunkSize), (int)(_y / ChunkSize), (int)(_z / ChunkSize));
+        Vector3Int cpos = BlockToChunkSpace(x, y, z);
 
         // make sure the position is even in the world
-        if(!chunks.ContainsKey(cpos)) {
+        if (!chunks.ContainsKey(cpos)) {
             return null;
         }
+
         return chunks[cpos];
     }
 
@@ -233,11 +234,7 @@ public class World : MonoBehaviour
 
         if (updateAdjacentBlocks) {
             // convert world position to chunk position
-            int cx = (int)( x / ChunkSize );
-            int cy = (int)( y / ChunkSize );
-            int cz = (int)( z / ChunkSize );
-
-            Vector3Int chunkPos = new Vector3Int(cx,cy,cz);
+            Vector3Int chunkPos = BlockToChunkSpace(x,y,z);
 
             // convert world position to position relative to chunk
             int rx = x.Mod(ChunkSize);
@@ -251,5 +248,10 @@ public class World : MonoBehaviour
             if (rz == 0 && chunkToUpdate.SouthNeighbor != null) chunkToUpdate.SouthNeighbor.UpdateChunk();
             if (rz == ChunkSize-1 && chunkToUpdate.NorthNeighbor != null) chunkToUpdate.NorthNeighbor.UpdateChunk();
         }
+    }
+
+    public static Vector3Int BlockToChunkSpace (int x, int y, int z) {
+        Vector3 p = new Vector3(x, y, z);
+        return Vector3Int.FloorToInt(p / ChunkSize);
     }
 }

@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
-using LibNoise.Unity;
-using LibNoise.Unity.Generator;
 
 public class Chunk : MonoBehaviour
 {
     public const int ChunkSize = World.ChunkSize; // this should be the same value as the chunksize in the world script
+    public Vector3Int ChunkPosition;
+
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
     public const float TextureAtlasSize = 0.125f;
@@ -36,24 +35,24 @@ public class Chunk : MonoBehaviour
         for (int x = 0; x < ChunkSize; x++) {
             for (int z = 0; z < ChunkSize; z++) {
 
-                Biome _b = GetDitheredBiome(x,z,transform.position);
-                int _h = GetTerrainNoise(x, z, transform.position);
+                Biome _b = GetDitheredBiome(x,z,ChunkPosition);
+                int _h = GetTerrainNoise(x, z, ChunkPosition);
                 int dirtLevel = Random.Range(_h-4, _h-6);
                 int bedrockLevel = Random.Range(0,3);
 
                 for (int y = 0; y < ChunkSize; y++) {
-                    if (y+transform.position.y == _h-1) {
+                    if (y+ChunkPosition.y == _h-1) {
                         SetBlock(x, y, z, BlockList.instance.blocks[_b.surfaceBlock]);
-                    } else if (y + transform.position.y < _h-1 && y + transform.position.y > dirtLevel) {
+                    } else if (y + ChunkPosition.y < _h-1 && y + ChunkPosition.y > dirtLevel) {
                         SetBlock(x, y, z, BlockList.instance.blocks[_b.subSurfaceBlock]);
-                    } else if (y + transform.position.y <= dirtLevel) {
+                    } else if (y + ChunkPosition.y <= dirtLevel) {
                         SetBlock(x, y, z, BlockList.instance.blocks["Stone"]);
                     } else {
                         SetBlock(x, y, z, BlockList.instance.blocks["Air"]);
                     }
 
                     // Bedrock layer
-                    if (y+transform.position.y <= bedrockLevel) {
+                    if (y+ChunkPosition.y <= bedrockLevel) {
                         SetBlock(x,y,z, BlockList.instance.blocks["Bedrock"]);
                     }
                 }
@@ -84,10 +83,10 @@ public class Chunk : MonoBehaviour
                     if (blocks[x, y, z].name == "Air")
                         continue;
 
-                    List<Faces> facesToDraw = FacesToDraw(x, y, z);
+                    // Calculate faces that need to be rendered and generate the mesh data
 
                     // top
-                    if (facesToDraw.Contains(Faces.Top)) {
+                    if (GetBlock(x, y + 1, z).translucent) {
                         verts.Add(new Vector3(x, y + 1, z));
                         verts.Add(new Vector3(x, y + 1, z + 1));
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
@@ -98,7 +97,7 @@ public class Chunk : MonoBehaviour
                     }
 
                     // bottom
-                    if (facesToDraw.Contains(Faces.Bottom)) {
+                    if (GetBlock(x, y - 1, z).translucent) {
                         verts.Add(new Vector3(x + 1, y, z));
                         verts.Add(new Vector3(x + 1, y, z + 1));
                         verts.Add(new Vector3(x, y, z + 1));
@@ -109,7 +108,7 @@ public class Chunk : MonoBehaviour
                     }
 
                     // left
-                    if (facesToDraw.Contains(Faces.Left)) {
+                    if (GetBlock(x - 1, y, z).translucent) {
                         verts.Add(new Vector3(x, y, z + 1));
                         verts.Add(new Vector3(x, y + 1, z + 1));
                         verts.Add(new Vector3(x, y + 1, z));
@@ -120,7 +119,7 @@ public class Chunk : MonoBehaviour
                     }
 
                     // right
-                    if (facesToDraw.Contains(Faces.Right)) {
+                    if (GetBlock(x + 1, y, z).translucent) {
                         verts.Add(new Vector3(x + 1, y, z));
                         verts.Add(new Vector3(x + 1, y + 1, z));
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
@@ -131,7 +130,7 @@ public class Chunk : MonoBehaviour
                     }
 
                     // front
-                    if (facesToDraw.Contains(Faces.Front)) {
+                    if (GetBlock(x, y, z - 1).translucent) {
                         verts.Add(new Vector3(x, y, z));
                         verts.Add(new Vector3(x, y + 1, z));
                         verts.Add(new Vector3(x + 1, y + 1, z));
@@ -142,7 +141,7 @@ public class Chunk : MonoBehaviour
                     }
 
                     // back
-                    if (facesToDraw.Contains(Faces.Back)) {
+                    if (GetBlock(x, y, z + 1).translucent) {
                         verts.Add(new Vector3(x + 1, y, z + 1));
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
                         verts.Add(new Vector3(x, y + 1, z + 1));
@@ -156,14 +155,16 @@ public class Chunk : MonoBehaviour
         }
 
         // create new mesh out of the new verts and tris and apply it to the chunk
-        Mesh chunkMesh = new Mesh();
-        chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        chunkMesh.SetVertices(verts);
-        chunkMesh.SetTriangles(tris,0);
-        chunkMesh.SetUVs(0,uvs);
+        MeshFilter MF = GetComponent<MeshFilter>();
+        Mesh chunkMesh = MF.sharedMesh;
+        chunkMesh.Clear(); // clear current mesh
+        chunkMesh.SetVertices(verts); // set vertices
+        chunkMesh.SetTriangles(tris,0); // set triangles
+        chunkMesh.SetUVs(0,uvs); // set uvs
 
-        chunkMesh.RecalculateNormals();
-        GetComponent<MeshFilter>().mesh = chunkMesh;
+        chunkMesh.RecalculateNormals(); // calculate normals
+        Helper.CalculateMeshTangents(chunkMesh); // calculate tangents
+
         GetComponent<MeshCollider>().sharedMesh = chunkMesh;
 
         //sw.Stop();
@@ -246,39 +247,8 @@ public class Chunk : MonoBehaviour
         return rVal;
     }
 
-    List<Faces> FacesToDraw (int x, int y, int z) {
-        List<Faces> ftd = new List<Faces>();
-
-        // Top
-        if (GetBlock(x,y+1,z).translucent) {
-            ftd.Add(Faces.Top);
-        }
-        // Bottom
-        if (GetBlock(x, y-1, z).translucent) {
-            ftd.Add(Faces.Bottom);
-        }
-        // Left
-        if (GetBlock(x-1, y, z).translucent) {
-            ftd.Add(Faces.Left);
-        }
-        // Right
-        if (GetBlock(x+1, y, z).translucent) {
-            ftd.Add(Faces.Right);
-        }
-        // Front
-        if (GetBlock(x, y, z-1).translucent) {
-            ftd.Add(Faces.Front);
-        }
-        // Back
-        if (GetBlock(x, y, z+1).translucent) {
-            ftd.Add(Faces.Back);
-        }
-
-        return ftd;
-    }
-
     Block GetBlock (int x, int y, int z) {
-        return World.instance.GetBlock((int)transform.position.x + x, (int)transform.position.y + y, (int)transform.position.z + z);
+        return World.instance.GetBlock((int)ChunkPosition.x + x, (int)ChunkPosition.y + y, (int)ChunkPosition.z + z);
     }
 
     public void UpdateChunk () {

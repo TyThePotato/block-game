@@ -69,11 +69,12 @@ public class World : MonoBehaviour
 
     void LoadChunksAroundPlayer (Vector3Int playerChunkPos) {
         List<Vector3Int> chunksAroundPlayer = new List<Vector3Int>();
-        for (int x = 0; x <= ChunkRenderRadius*2; x++) {
-            for (int y = 0; y <= ChunkRenderRadius*2; y++) {
-                for (int z = 0; z <= ChunkRenderRadius*2; z++) {
-                    Vector3Int p = new Vector3Int(playerChunkPos.x-ChunkRenderRadius+x, playerChunkPos.y-ChunkRenderRadius+y, playerChunkPos.z-ChunkRenderRadius+z);
-                    if(p.y < 0) continue;
+        int crr = ChunkRenderRadius+1;
+        for (int x = -crr; x <= crr; x++) {
+            for (int y = -crr; y <= crr; y++) {
+                for (int z = -crr; z <= crr; z++) {
+                    Vector3Int p = new Vector3Int(playerChunkPos.x+x, playerChunkPos.y+y, playerChunkPos.z+z);
+                    if(p.y < 0) continue; // dont generate chunks under y 0, may be changed at some point
                     if (!chunksAroundPlayer.Contains(p)) {
                         chunksAroundPlayer.Add(p);
                     }

@@ -8,6 +8,8 @@ public class Chunk : MonoBehaviour
 
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
+    public bool RenderChunk = true;
+
     public const float TextureAtlasSize = 0.125f;
     public const float UVBleedCompromise = 0.002f;
 
@@ -18,15 +20,20 @@ public class Chunk : MonoBehaviour
     List<Vector2> uvs;
 
     private void Awake() {
-        blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
-        verts = new List<Vector3>(ChunkSize*ChunkSize*ChunkSize*24);
-        tris = new List<int>(ChunkSize*ChunkSize*ChunkSize*36);
-        uvs = new List<Vector2>(ChunkSize*ChunkSize*ChunkSize*24);
+        // if chunk isn't even going to get rendered, there's no point in initializing these lists
+        if (RenderChunk) {
+            blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+            verts = new List<Vector3>(ChunkSize * ChunkSize * ChunkSize * 24);
+            tris = new List<int>(ChunkSize * ChunkSize * ChunkSize * 36);
+            uvs = new List<Vector2>(ChunkSize * ChunkSize * ChunkSize * 24);
+        }
     }
 
     private void Start() {
         GenerateBlocks();
-        GenerateChunkMesh();
+        if (RenderChunk) {
+            GenerateChunkMesh();
+        }
     }
 
     void GenerateBlocks() {

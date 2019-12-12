@@ -74,7 +74,14 @@ public class World : MonoBehaviour
             for (int y = -crr; y <= crr; y++) {
                 for (int z = -crr; z <= crr; z++) {
                     Vector3Int p = new Vector3Int(playerChunkPos.x+x, playerChunkPos.y+y, playerChunkPos.z+z);
-                    if(p.y < 0) continue; // dont generate chunks under y 0, may be changed at some point
+                    // dont generate chunks under y 0, may be changed at some point
+                    if (p.y < 0) continue; 
+
+                    if(Mathf.Abs(x) == crr || Mathf.Abs(y) == crr || Mathf.Abs(z) == crr) {
+
+                        continue;
+                    }
+
                     if (!chunksAroundPlayer.Contains(p)) {
                         chunksAroundPlayer.Add(p);
                     }

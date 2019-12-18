@@ -23,6 +23,7 @@ public class World : MonoBehaviour
     private Vector3Int currentPlayerChunk = Vector3Int.zero;
 
     public Material TerrainMaterial;
+    public Material DebugMaterial;
 
     public Vector3 WorldSpawn;
     Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
@@ -68,6 +69,7 @@ public class World : MonoBehaviour
     }
 
     void LoadChunksAroundPlayer (Vector3Int playerChunkPos) {
+        // get all chunks around player
         List<Vector3Int> chunksAroundPlayer = new List<Vector3Int>();
         int crr = ChunkRenderRadius+1;
         for (int x = -crr; x <= crr; x++) {
@@ -77,11 +79,6 @@ public class World : MonoBehaviour
                     // dont generate chunks under y 0, may be changed at some point
                     if (p.y < 0) continue; 
 
-                    if(Mathf.Abs(x) == crr || Mathf.Abs(y) == crr || Mathf.Abs(z) == crr) {
-
-                        continue;
-                    }
-
                     if (!chunksAroundPlayer.Contains(p)) {
                         chunksAroundPlayer.Add(p);
                     }
@@ -89,13 +86,27 @@ public class World : MonoBehaviour
             }
         }
 
+        // figure out what do do with the chunks around player
         List<Vector3Int> chunksToUnload = new List<Vector3Int>();
         List<Vector3Int> chunksToLoad = new List<Vector3Int>();
+        List<Vector3Int> edgeChunks = new List<Vector3Int>();
 
         for (int i = 0; i < chunksAroundPlayer.Count; i++) {
+            Vector3Int relativeChunkPos = chunksAroundPlayer[i] - playerChunkPos;
+
             if (!chunks.ContainsKey(chunksAroundPlayer[i])) {
+                if (Mathf.Abs(relativeChunkPos.x) == crr || Mathf.Abs(relativeChunkPos.y) == crr || Mathf.Abs(relativeChunkPos.z) == crr) {
+                    edgeChunks.Add(chunksAroundPlayer[i]);
+                    continue;
+                }
                 //these chunks are not currenly loaded so need to be loaded
                 chunksToLoad.Add(chunksAroundPlayer[i]);
+            } else {
+                // check if chunk is an invisible chunk
+                if (!chunks[chunksAroundPlayer[i]].RenderChunk) {
+                    UnloadChunk(chunksAroundPlayer[i].x, chunksAroundPlayer[i].y, chunksAroundPlayer[i].z);
+                    LoadChunk(chunksAroundPlayer[i].x, chunksAroundPlayer[i].y, chunksAroundPlayer[i].z);
+                }
             }
         }
 
@@ -114,10 +125,14 @@ public class World : MonoBehaviour
             LoadChunk(chunksToLoad[i].x, chunksToLoad[i].y, chunksToLoad[i].z);
         }
 
+        for (int i = 0; i < edgeChunks.Count; i++) {
+            LoadChunk(edgeChunks[i].x, edgeChunks[i].y, edgeChunks[i].z, true);
+        }
+
         SetAdjacentChunkReferences();
     }
 
-    void GenerateChunk(int x, int y, int z) {
+    void GenerateChunk(int x, int y, int z, bool invisible) {
         GameObject chunk = new GameObject($"Chunk_{x},{y},{z}"); // create new chunk
         chunk.isStatic = true;
 
@@ -125,16 +140,22 @@ public class World : MonoBehaviour
         Vector3Int worldPos = chunkPos * ChunkSize;
         chunk.transform.position = worldPos; // position chunk 
 
-        Mesh chunkMesh = new Mesh(); // create chunk mesh
-        chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // set chunk mesh to use 32 bit indices as chunk vertices can possibly be > 65565 (16 bit index format)
-        chunk.AddComponent<MeshFilter>().sharedMesh = chunkMesh; // add mesh to chunk
-        chunk.AddComponent<MeshRenderer>().material = TerrainMaterial; // add renderer to chunk so you can actually see it
-        chunk.AddComponent<MeshCollider>(); // eventually when some blocks are able to have different collision meshes or no collision this will have to be its own mesh
+        if (!invisible) {
+            Mesh chunkMesh = new Mesh(); // create chunk mesh
+            chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // set chunk mesh to use 32 bit indices as chunk vertices can possibly be > 65565 (16 bit index format)
+            chunk.AddComponent<MeshFilter>().sharedMesh = chunkMesh; // add mesh to chunk
+            chunk.AddComponent<MeshRenderer>().material = TerrainMaterial; // add renderer to chunk so you can actually see it
+            chunk.AddComponent<MeshCollider>(); // eventually when some blocks are able to have different collision meshes or no collision this will have to be its own mesh
+        }
         chunk.layer = 8;
 
         // actual chunk stuff
         Chunk c = chunk.AddComponent<Chunk>();
         c.ChunkPosition = worldPos;
+        c.RenderChunk = !invisible;
+        if (chunks.TryGetValue(chunkPos, out Chunk value)) {
+            Debug.Log(value.RenderChunk);
+        }
         chunks.Add(chunkPos, c);
     }
 
@@ -200,8 +221,8 @@ public class World : MonoBehaviour
     }
 
     [Command("loadchunk")]
-    public void LoadChunk (int x, int y, int z) {
-        GenerateChunk(x,y,z);
+    public void LoadChunk (int x, int y, int z, bool invisible = false) {
+        GenerateChunk(x,y,z, invisible);
     }
 
     [Command("unloadchunk")]

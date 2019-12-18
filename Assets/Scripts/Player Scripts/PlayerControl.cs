@@ -80,8 +80,10 @@ public class PlayerControl : MonoBehaviour
         // cursor lock stuff
         if (cursorLocked == true) {
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         } else {
             Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         if (!cameraEnabled) {
@@ -99,7 +101,7 @@ public class PlayerControl : MonoBehaviour
 
     [Command("tp")]
     public void SetPosition (float x, float y, float z) {
-        transform.position = new Vector3(x,y,z);
+        transform.position = new Vector3(x+0.5f,y+1,z+ 0.5f);
     }
 
     [Command("fov")]

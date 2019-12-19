@@ -29,6 +29,6 @@ public class SystemInfoUI : MonoBehaviour
     }
 
     private void Update() {
-        cpuInfo.text = $"CPU: {SystemInfo.processorType} x {SystemInfo.processorCount}";
+        ramInfo.text = $"RAM: {Profiler.GetTotalAllocatedMemoryLong() / 1000000} MB / {SystemInfo.systemMemorySize} MB";
     }
 }

@@ -28,13 +28,13 @@ public class FpsGraph : Graph
 
     private FpsMonitorUI _fpsMonitorUi;
 
-    private const int _resolution = 150;
+    private const int _resolution = 128;
 
     private GraphShader _shaderGraph;
 
     private int[] _fpsArray;
 
-    private int _highestFps;
+    public int _highestFps;
 
     public FpsGraph(Image imageGraph, Shader shader) {
         _imageGraph = imageGraph;
@@ -55,10 +55,11 @@ public class FpsGraph : Graph
         int currentMaxFps = 0;
 
         for (int i = 0; i <= _resolution - 1; i++) {
-            if (i >= _resolution - 1)
+            if (i >= _resolution - 1) {
                 _fpsArray[i] = fps;
-            else
+            } else {
                 _fpsArray[i] = _fpsArray[i + 1];
+            }
 
             if (currentMaxFps < _fpsArray[i]) {
                 currentMaxFps = _fpsArray[i];
@@ -67,8 +68,10 @@ public class FpsGraph : Graph
 
         _highestFps = _highestFps < 1 || _highestFps <= currentMaxFps ? currentMaxFps : _highestFps - 1;
 
-        for (int i = 0; i <= _resolution - 1; i++)
+        for (int i = 0; i <= _resolution - 1; i++) {
             _shaderGraph.array[i] = _fpsArray[i] / (float)_highestFps;
+        }
+
         _shaderGraph.average = _fpsMonitorUi.averageFps;
 
         _shaderGraph.UpdatePoints();

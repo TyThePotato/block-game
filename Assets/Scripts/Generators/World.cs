@@ -144,7 +144,7 @@ public class World : MonoBehaviour
             Mesh chunkMesh = new Mesh(); // create chunk mesh
             chunkMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // set chunk mesh to use 32 bit indices as chunk vertices can possibly be > 65565 (16 bit index format)
             chunk.AddComponent<MeshFilter>().sharedMesh = chunkMesh; // add mesh to chunk
-            chunk.AddComponent<MeshRenderer>().material = TerrainMaterial; // add renderer to chunk so you can actually see it
+            chunk.AddComponent<MeshRenderer>(); // add renderer to chunk 
             chunk.AddComponent<MeshCollider>(); // eventually when some blocks are able to have different collision meshes or no collision this will have to be its own mesh
         }
         chunk.layer = 8;

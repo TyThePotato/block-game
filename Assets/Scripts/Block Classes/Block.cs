@@ -5,17 +5,13 @@ using UnityEngine;
 public class Block
 {
     public string name = "Undefined";
-    public Vector2[] textures = new Vector2[] { Vector2.zero };
+    public string[] textures = new string[] { "stone" }; // todo: replace with error texture
     public bool translucent = false;
     public bool invincible = false;
     public string soundType = "none";
 
-    public Vector2 GetTexture(Faces side) {
-        if (textures.Length == 6) {
-            return textures[(int)side];
-        } else {
-            return textures[0];
-        }
+    public TextureGroup GetTextureGroup(Faces side) {
+        return textures.Length == 6 ? BlockList.instance.textureGroups[textures[(int)side]] : BlockList.instance.textureGroups[textures[0]];
     }
 }
 

@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 
@@ -12,6 +11,8 @@ public class DayCycle : MonoBehaviour
     public float StartingTime = 8f; // what time in hours the world starts at
     public float SkyboxSpeed;
 
+    public int UpdateRate = 1; // this minus 1 is how many frames to wait before updating time
+
     public Light Sun;
     public Vector3 SunRotationVector;
     public AnimationCurve SkyboxBlend;
@@ -21,19 +22,33 @@ public class DayCycle : MonoBehaviour
     public TextMeshProUGUI DayText;
 
     Material skybox;
+    private int frameCount = 0;
+    private float[] deltaTimes;
 
     private void Awake() {
         skybox = RenderSettings.skybox;
         Hours = StartingTime;
+        deltaTimes = new float[UpdateRate];
     }
 
     private void Update() {
-        Hours += (Time.deltaTime * (24f / DayLengthInSeconds));
+        if (++frameCount < UpdateRate) {
+            deltaTimes[frameCount - 1] = Time.deltaTime;
+            return;
+        }
+        deltaTimes[frameCount - 1] = Time.deltaTime;
+        frameCount = 0;
+        float totalDeltaTime = deltaTimes.Sum();
 
-        skybox.SetFloat("_Rotation", (Time.time * SkyboxSpeed) % 360); // Rotate skybox over time
-        skybox.SetFloat("_SkyBlend", 1-SkyboxBlend.Evaluate(Hours/24)); // Blend skybox depending on time of day, inverts the number because i feel like it
-        Sun.intensity = LightCurve.Evaluate(Hours/24); // Change sun brightness depending on time of day
-        Sun.transform.eulerAngles = SunRotationVector * (((Hours/24)-0.25f)*360); // Rotate sun depending on time of day
+        Hours += totalDeltaTime * (24f / DayLengthInSeconds);
+
+        skybox.SetFloat("_Rotation", (Time.time * SkyboxSpeed * UpdateRate) % 360); // Rotate skybox over time
+        Sun.transform.eulerAngles = SunRotationVector * ((((Hours % 24) / 24) - 0.25f) * 360); // Rotate sun depending on time of day
+        skybox.SetFloat("_SkyBlend", 1-SkyboxBlend.Evaluate((Hours%24)/24)); // Blend skybox depending on time of day, inverts the number because i feel like it
+
+        float intensity = LightCurve.Evaluate((Hours%24)/24);
+        Sun.intensity = LightCurve.Evaluate(intensity); // Change sun brightness depending on time of day
+        RenderSettings.ambientIntensity = intensity; // change ambient intensity too, so nights are dark and days are bright
 
         TimeText.SetText(Get24H());
         DayText.SetText("Day " + GetDay(true));
@@ -55,12 +70,7 @@ public class DayCycle : MonoBehaviour
         string hour = ((int)Hours % 24).ToString();
         int _m = GetMinute() % 60;
 
-        string minute;
-        if(_m > 9) {
-            minute = _m.ToString();
-        } else {
-            minute = "0" + _m;
-        }
+        string minute = _m > 9 ? _m.ToString() : "0" + _m;
 
         return hour + ":" + minute;
     }

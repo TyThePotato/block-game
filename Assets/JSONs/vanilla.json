@@ -4,31 +4,31 @@
 	"name":"Air", 
     "translucent":true
 	},
-  {
-    "name":"Stone",
-    "soundType":"rock",
-    "translucent":"false",
-    "textures":[
-      {"x":3, "y":0}
-    ]
-  },
-  {
-    "name":"Grass",
-    "soundType":"grass",
-    "textures":[
-      {"x":0, "y":0},
-      {"x":2, "y":0},
-      {"x":1, "y":0},
-      {"x":1, "y":0},
-      {"x":1, "y":0},
-      {"x":1, "y":0}
-    ]
-  },
+    {
+      "name": "Stone",
+      "soundType": "rock",
+      "translucent": "false",
+      "textures": [
+        "stone"
+      ]
+    },
+    {
+      "name": "Grass",
+      "soundType": "grass",
+      "textures": [
+        "grass_top",
+        "grass_side",
+        "grass_side",
+        "grass_side",
+        "grass_side",
+        "dirt"
+      ]
+    },
   {
     "name":"Dirt",
     "soundType":"dirt",
     "textures":[
-      {"x":2, "y":0}
+      "dirt"
     ]
   },
   {
@@ -36,41 +36,33 @@
     "invincible":true,
     "soundType":"rock",
     "textures":[
-      {"x":0, "y":1}
+      "stone"
     ]
   },
   {
     "name":"Wood",
     "soundType":"wood",
     "textures":[
-      {"x":1, "y":1}
+      "wood"
     ]
   },
   {
     "name":"Log",
     "soundType":"wood",
-    "textures":[
-        {"x":3, "y":1},
-        {"x":3, "y":1},
-        {"x":2, "y":1},
-        {"x":2, "y":1},
-        {"x":2, "y":1},
-        {"x":2, "y":1}
-      ]
+    "textures": [
+      "log_top",
+      "log_side",
+      "log_side",
+      "log_side",
+      "log_side",
+      "log_top"
+    ]
   },
   {
     "name":"Sand",
     "soundType":"sand",
     "textures":[
-      {"x":0, "y":2}
-    ]
-  },
-  {
-    "name":"Gold Ore",
-    "soundType":"rock",
-    "translucent":"false",
-    "textures":[
-      {"x":4, "y":0}
+      "sand"
     ]
   }
   ]

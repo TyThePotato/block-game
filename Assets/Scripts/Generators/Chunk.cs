@@ -10,22 +10,33 @@ public class Chunk : MonoBehaviour
 
     public bool RenderChunk = true;
 
-    public const float TextureAtlasSize = 0.125f;
-    public const float UVBleedCompromise = 0.002f;
-
     public Chunk NorthNeighbor, SouthNeighbor, EastNeighbor, WestNeighbor, TopNeighbor, BottomNeighbor;
 
     List<Vector3> verts;
-    List<int> tris;
-    List<Vector2> uvs;
+    Dictionary<TextureGroup, List<int>> tris;
+    Dictionary<TextureGroup, List<Vector2>> uvs;
+
+    private List<Vector2> faceUV;
+    private List<int> t;
 
     private void Awake() {
         // if chunk isn't even going to get rendered, there's no point in initializing these lists
         if (RenderChunk) {
             blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
             verts = new List<Vector3>(ChunkSize * ChunkSize * ChunkSize * 24);
-            tris = new List<int>(ChunkSize * ChunkSize * ChunkSize * 36);
-            uvs = new List<Vector2>(ChunkSize * ChunkSize * ChunkSize * 24);
+            tris = new Dictionary<TextureGroup, List<int>>(ChunkSize * ChunkSize * ChunkSize * 36);
+            uvs = new Dictionary<TextureGroup, List<Vector2>>(ChunkSize * ChunkSize * ChunkSize * 24);
+            //tris = new List<int>(ChunkSize * ChunkSize * ChunkSize * 36);
+            //uvs = new List<Vector2>(ChunkSize * ChunkSize * ChunkSize * 24);
+
+            t = new List<int>(6);
+
+            faceUV = new List<Vector2>(4) {
+                new Vector2(0,1),
+                new Vector2(0,0),
+                new Vector2(1,0),
+                new Vector2(1,1)
+            };
         }
     }
 
@@ -81,7 +92,6 @@ public class Chunk : MonoBehaviour
         int faceCount = 0;
         verts.Clear();
         tris.Clear();
-        uvs.Clear();
 
         for (int x = 0; x < ChunkSize; x++) {
             for (int y = 0; y < ChunkSize; y++) {
@@ -98,8 +108,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x, y + 1, z + 1));
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
                         verts.Add(new Vector3(x + 1, y + 1, z));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Top));
+                        AddTrisAndUVS(faceCount, GetBlock(x,y,z).GetTextureGroup(Faces.Top));
                         faceCount++;
                     }
 
@@ -109,8 +118,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x + 1, y, z + 1));
                         verts.Add(new Vector3(x, y, z + 1));
                         verts.Add(new Vector3(x, y, z));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Bottom));
+                        AddTrisAndUVS(faceCount, GetBlock(x, y, z).GetTextureGroup(Faces.Bottom));
                         faceCount++;
                     }
 
@@ -120,8 +128,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x, y + 1, z + 1));
                         verts.Add(new Vector3(x, y + 1, z));
                         verts.Add(new Vector3(x, y, z));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Left));
+                        AddTrisAndUVS(faceCount, GetBlock(x, y, z).GetTextureGroup(Faces.Left));
                         faceCount++;
                     }
 
@@ -131,8 +138,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x + 1, y + 1, z));
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
                         verts.Add(new Vector3(x + 1, y, z + 1));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Right));
+                        AddTrisAndUVS(faceCount, GetBlock(x, y, z).GetTextureGroup(Faces.Right));
                         faceCount++;
                     }
 
@@ -142,8 +148,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x, y + 1, z));
                         verts.Add(new Vector3(x + 1, y + 1, z));
                         verts.Add(new Vector3(x + 1, y, z));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Front));
+                        AddTrisAndUVS(faceCount, GetBlock(x, y, z).GetTextureGroup(Faces.Front));
                         faceCount++;
                     }
 
@@ -153,8 +158,7 @@ public class Chunk : MonoBehaviour
                         verts.Add(new Vector3(x + 1, y + 1, z + 1));
                         verts.Add(new Vector3(x, y + 1, z + 1));
                         verts.Add(new Vector3(x, y, z + 1));
-                        AddTris(faceCount);
-                        AddUvs(blocks[x,y,z].GetTexture(Faces.Back));
+                        AddTrisAndUVS(faceCount, GetBlock(x, y, z).GetTextureGroup(Faces.Back));
                         faceCount++;
                     }
                 }
@@ -163,11 +167,25 @@ public class Chunk : MonoBehaviour
 
         // create new mesh out of the new verts and tris and apply it to the chunk
         MeshFilter MF = GetComponent<MeshFilter>();
+        MeshRenderer MR = GetComponent<MeshRenderer>();
         Mesh chunkMesh = MF.sharedMesh;
         chunkMesh.Clear(); // clear current mesh
         chunkMesh.SetVertices(verts); // set vertices
-        chunkMesh.SetTriangles(tris,0); // set triangles
-        chunkMesh.SetUVs(0,uvs); // set uvs
+
+        Material[] chunkMats = new Material[tris.Count];
+
+        int submesh = 0;
+        foreach (KeyValuePair<TextureGroup, List<int>> entry in tris) {
+            chunkMesh.SetTriangles(entry.Value, submesh);
+            chunkMesh.SetUVs(submesh, uvs[entry.Key]);
+            chunkMats[submesh] = entry.Key.mainMaterial;
+            submesh++;
+        }
+
+        MR.materials = chunkMats;
+
+        //chunkMesh.SetTriangles(tris,0); // set triangles
+        //chunkMesh.SetUVs(0,uvs); // set uvs
 
         chunkMesh.RecalculateNormals(); // calculate normals
         Helper.CalculateMeshTangents(chunkMesh); // calculate tangents
@@ -178,21 +196,36 @@ public class Chunk : MonoBehaviour
         //UnityEngine.Debug.Log($"Generating chunk mesh took {sw.ElapsedMilliseconds}ms");
     }
 
-    private void AddTris (int fc) {
-        tris.Add(fc * 4);
-        tris.Add(fc * 4 + 1);
-        tris.Add(fc * 4 + 2);
-        tris.Add(fc * 4);
-        tris.Add(fc * 4 + 2);
-        tris.Add(fc * 4 + 3);
+    private void AddTrisAndUVS (int fc, TextureGroup tg) {
+        t.Clear();
+        t.Add(fc * 4);
+        t.Add(fc * 4 + 1);
+        t.Add(fc * 4 + 2);
+        t.Add(fc * 4);
+        t.Add(fc * 4 + 2);
+        t.Add(fc * 4 + 3);
+
+        if(tris.ContainsKey(tg)) {
+            tris[tg].AddRange(t);
+        } else {
+            tris.Add(tg, t);
+        }
+
+        if(uvs.ContainsKey(tg)) {
+            uvs[tg].AddRange(faceUV);
+        } else {
+            uvs.Add(tg, faceUV);
+        }
     }
 
+    /*
     private void AddUvs (Vector2 texture) {
         uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise)); // Top left corner
         uvs.Add(new Vector2(TextureAtlasSize * texture.x + UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise)); // bottom left corner
         uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + TextureAtlasSize - UVBleedCompromise)); // bottom right corner
         uvs.Add(new Vector2(TextureAtlasSize * texture.x + TextureAtlasSize - UVBleedCompromise, TextureAtlasSize * ((1/TextureAtlasSize) - 1 - texture.y) + UVBleedCompromise)); // top right corner
     }
+    */
 
     public static int GetTerrainNoise(int x, int y, Vector3 Offset) {
         float biomenoise = GetBiomeNoise(x,y,Offset);

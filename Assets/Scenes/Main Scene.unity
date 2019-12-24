@@ -5392,7 +5392,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 665f46f8f76b8e74cb401e22f6d3caee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockmat: {fileID: 2100000, guid: 8186c606a7a5470479e074fbdd834058, type: 2}
 --- !u!1 &151560368
 GameObject:
   m_ObjectHideFlags: 0
@@ -6280,7 +6279,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 210, y: -11.28}
+  m_AnchoredPosition: {x: 210, y: -11.280029}
   m_SizeDelta: {x: 420, y: 22.28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &604404160
@@ -7630,6 +7629,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BlockListText: {fileID: 4900000, guid: 24667e5ec808f79459dd86915a3e07f4, type: 3}
+  blockMaterialTemplate: {fileID: 2100000, guid: 0491ceac79c754645b8d9e295a31baa9,
+    type: 2}
 --- !u!82 &1255499962
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7791,10 +7792,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af4f997c2849e1949bc244f2fcfc9e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DayLengthInSeconds: 120
+  DayLengthInSeconds: 1440
   Hours: 0
   StartingTime: 8
   SkyboxSpeed: 0
+  UpdateRate: 2
   Sun: {fileID: 705507994}
   SunRotationVector: {x: 1, y: 0, z: 0}
   SkyboxBlend:
@@ -9215,7 +9217,7 @@ MonoBehaviour:
   currentlySelectedBlock:
     name: Undefined
     textures:
-    - {x: 0, y: 0}
+    - 
     translucent: 0
     invincible: 0
     soundType: none
@@ -9223,7 +9225,7 @@ MonoBehaviour:
   lookingAt:
     name: Undefined
     textures:
-    - {x: 0, y: 0}
+    - 
     translucent: 0
     invincible: 0
     soundType: none
@@ -11512,7 +11514,7 @@ MonoBehaviour:
   - {fileID: 114478704621138966}
   theme: {fileID: 11400000, guid: 5a19be32700ef4a13bfa337a662ef25b, type: 2}
   hideConsoleKey:
-    key: 0
+    key: 27
     ctrl: 0
     alt: 0
     shift: 0

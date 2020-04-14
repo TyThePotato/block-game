@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using QFSW.QC;
 using LibNoise.Unity.Generator;
 
@@ -12,6 +13,7 @@ public class World : MonoBehaviour
     [HideInInspector]
     public const int ChunkSize = 16; // how many blocks in each direction are in a chunk, used for correctly positioning chunks
 
+    public string Name;
     public int Seed;
     public bool RandomSeed = true;
     public AnimationCurve HeightCurve;
@@ -26,7 +28,8 @@ public class World : MonoBehaviour
     public Material DebugMaterial;
 
     public Vector3 WorldSpawn;
-    Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
+    [HideInInspector]
+    public Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
 
     private void Awake() {
         if (instance == null) {
@@ -247,6 +250,43 @@ public class World : MonoBehaviour
         UpdateChunk(x,y,z,true);
     }
 
+    [Command("fill")]
+    public void Fill (int x1, int y1, int z1, int x2, int y2, int z2, string block) {
+        int _x1, _x2, _y1, _y2, _z1, _z2;
+
+        if (x1 > x2) {
+            _x1 = x2;
+            _x2 = x1;
+        } else {
+            _x1 = x1;
+            _x2 = x2;
+        }
+
+        if (y1 > y2) {
+            _y1 = y2;
+            _y2 = y1;
+        } else {
+            _y1 = y1;
+            _y2 = y2;
+        }
+
+        if (z1 > z2) {
+            _z1 = z2;
+            _z2 = z1;
+        } else {
+            _z1 = z1;
+            _z2 = z2;
+        }
+
+        for (int x = _x1; x <= _x2; x++) {
+            for (int y = _y1; y <= _y2; y++) {
+                for (int z = _z1; z <= _z2; z++) {
+                    SetBlock(x, y, z, block);
+                }
+            }
+        }
+    }
+
     [Command("getblock")]
     public string GetBlockCmd (int x, int y, int z) {
         return (GetBlock(x, y, z).name);
@@ -259,7 +299,7 @@ public class World : MonoBehaviour
 
     public void UpdateChunk (int x, int y, int z, bool updateAdjacentBlocks) {
         Chunk chunkToUpdate = GetChunkFromBlockCoords (x,y,z);
-        chunkToUpdate.UpdateChunk();
+        chunkToUpdate.update = true;
 
         if (updateAdjacentBlocks) {
             // convert world position to chunk position
@@ -270,17 +310,30 @@ public class World : MonoBehaviour
             int ry = y.Mod(ChunkSize);
             int rz = z.Mod(ChunkSize);
 
-            if (rx == 0 && chunkToUpdate.WestNeighbor != null) chunkToUpdate.WestNeighbor.UpdateChunk();
-            if (rx == ChunkSize-1 && chunkToUpdate.EastNeighbor != null) chunkToUpdate.EastNeighbor.UpdateChunk();
-            if (ry == 0 && chunkToUpdate.BottomNeighbor != null) chunkToUpdate.BottomNeighbor.UpdateChunk();
-            if (ry == ChunkSize-1 && chunkToUpdate.TopNeighbor != null) chunkToUpdate.TopNeighbor.UpdateChunk();
-            if (rz == 0 && chunkToUpdate.SouthNeighbor != null) chunkToUpdate.SouthNeighbor.UpdateChunk();
-            if (rz == ChunkSize-1 && chunkToUpdate.NorthNeighbor != null) chunkToUpdate.NorthNeighbor.UpdateChunk();
+            if (rx == 0 && chunkToUpdate.WestNeighbor != null) chunkToUpdate.WestNeighbor.update = true;
+            if (rx == ChunkSize-1 && chunkToUpdate.EastNeighbor != null) chunkToUpdate.EastNeighbor.update = true;
+            if (ry == 0 && chunkToUpdate.BottomNeighbor != null) chunkToUpdate.BottomNeighbor.update = true;
+            if (ry == ChunkSize-1 && chunkToUpdate.TopNeighbor != null) chunkToUpdate.TopNeighbor.update = true;
+            if (rz == 0 && chunkToUpdate.SouthNeighbor != null) chunkToUpdate.SouthNeighbor.update = true;
+            if (rz == ChunkSize-1 && chunkToUpdate.NorthNeighbor != null) chunkToUpdate.NorthNeighbor.update = true;
         }
     }
 
     public static Vector3Int BlockToChunkSpace (int x, int y, int z) {
         Vector3 p = new Vector3(x, y, z);
         return Vector3Int.FloorToInt(p / ChunkSize);
+    }
+
+    [Command("saveworld")]
+    public void Save () {
+        SaveLoadData.instance.SaveWorld(chunks);
+    }
+
+    // unloads all chunks and wipes the chunk dictionary
+    public void DeleteAllChunks () {
+        foreach (KeyValuePair<Vector3Int, Chunk> kvp in chunks) {
+            kvp.Value.Unload();
+        }
+        chunks.Clear();
     }
 }

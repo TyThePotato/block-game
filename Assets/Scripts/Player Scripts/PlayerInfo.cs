@@ -35,7 +35,7 @@ public class PlayerInfo : MonoBehaviour
         HotbarItems[4] = ItemList.instance.items["Wood"];
         HotbarItems[5] = ItemList.instance.items["Stone Pickaxe"];
         HotbarItems[6] = ItemList.instance.items["Iron Pickaxe"];
-        HotbarItems[7] = ItemList.instance.items["Diamond Pickaxe"];
+        HotbarItems[7] = ItemList.instance.items["Diamond Tipped Pickaxe"];
         HotbarItems[8] = ItemList.instance.items["Torch"];
         UpdateHotbar();
     }
@@ -51,6 +51,7 @@ public class PlayerInfo : MonoBehaviour
     }
 
     private void Update() {
+
         if (CanInteract) {
             if (Input.GetMouseButtonDown(0)) {
                 // l click

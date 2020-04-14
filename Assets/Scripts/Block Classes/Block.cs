@@ -9,6 +9,7 @@ public class Block
     public bool translucent = false;
     public bool invincible = false;
     public string soundType = "none";
+    public string[] drops;
 
     public Vector2 GetTexture(Faces side) {
         if (textures.Length == 6) {

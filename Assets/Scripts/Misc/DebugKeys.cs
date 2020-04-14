@@ -9,7 +9,15 @@ public class DebugKeys : MonoBehaviour
     public GameObject GameUI;
     public Material TerrainMaterial;
 
+    private bool screenshotCaptured = false;
+    private string screenshotInfo;
+
     private void Update() {
+        if(screenshotCaptured) {
+            Debug.Log("Saved screenshot to " + screenshotInfo);
+            screenshotCaptured = false;
+        }
+
         if (Input.GetKeyDown(KeyCode.F1)) {
             ToggleUI();
         }
@@ -24,13 +32,9 @@ public class DebugKeys : MonoBehaviour
     
 
     void Screenshot () {
-        // if screenshots folder doesnt exist, make it
-        string documents = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string screenshotsFolder = documents + @"\TyJupiter\Block Game\Screenshots\";
-        System.IO.Directory.CreateDirectory(screenshotsFolder);
+        string screenshotsFolder = Helper.GameFolder(@"Screenshots\");
 
         DateTime date = DateTime.Now;
-        Debug.Log(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         string filename = date.ToString("MMM d yyyy H mm");
         string extension = ".png";
 
@@ -45,7 +49,8 @@ public class DebugKeys : MonoBehaviour
             }
         }
         ScreenCapture.CaptureScreenshot(screenshotsFolder + filename+extension);
-        Debug.Log($"Saved screenshot to {screenshotsFolder + filename+extension}");
+        screenshotCaptured = true;
+        screenshotInfo = screenshotsFolder + filename + extension;
         // todo: show message on screen informing user that screenshot has successfully been created
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using QFSW.QC;
 
 public class BlockList : MonoBehaviour
 {
@@ -24,6 +25,15 @@ public class BlockList : MonoBehaviour
             blocks.Add(bl.blocks[i].name, bl.blocks[i]);
         }
         Debug.Log($"Registered {blocks.Count} Blocks");
+    }
+
+    [Command("listloadedblocks")]
+    void ListLoadedBlocks () {
+        string l = "";
+        foreach (string key in blocks.Keys) {
+            l += key + Environment.NewLine;
+        }
+        QuantumConsole.print(l);
     }
 }
 

@@ -9,6 +9,7 @@ public class Chunk : MonoBehaviour
     public Block[,,] blocks; // 3d array of all the blocks in the chunk
 
     public bool RenderChunk = true;
+    public bool update = false;
 
     public const float TextureAtlasSize = 0.125f;
     public const float UVBleedCompromise = 0.002f;
@@ -36,6 +37,13 @@ public class Chunk : MonoBehaviour
         }
     }
 
+    private void Update () {
+        if (update) {
+            UpdateChunk();
+            update = false;
+        }
+    }
+
     void GenerateBlocks() {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
@@ -49,9 +57,16 @@ public class Chunk : MonoBehaviour
 
                 for (int y = 0; y < ChunkSize; y++) {
                     if (y+ChunkPosition.y == _h-1) {
-                        SetBlock(x, y, z, BlockList.instance.blocks[_b.surfaceBlock]);
+                        float rand = Random.Range(0f, 1f);
+                        if (rand < _b.alternateSurfaceBlockChance) {
+                            SetBlock(x, y, z, BlockList.instance.blocks[_b.alternateSurfaceBlock]);
+                        } else {
+                            SetBlock(x, y, z, BlockList.instance.blocks[_b.surfaceBlock]);
+                        }
                     } else if (y + ChunkPosition.y < _h-1 && y + ChunkPosition.y > dirtLevel) {
                         SetBlock(x, y, z, BlockList.instance.blocks[_b.subSurfaceBlock]);
+                    } else if (y + ChunkPosition.y < _h - 1 && y + ChunkPosition.y == dirtLevel) {
+                        SetBlock(x, y, z, BlockList.instance.blocks[_b.subSurfaceStoneTransitionBlock]);
                     } else if (y + ChunkPosition.y <= dirtLevel) {
                         SetBlock(x, y, z, BlockList.instance.blocks["Stone"]);
                     } else {

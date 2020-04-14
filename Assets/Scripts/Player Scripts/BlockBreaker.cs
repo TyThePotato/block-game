@@ -36,11 +36,11 @@ public class BlockBreaker : MonoBehaviour
         if(Physics.Raycast(cam.gameObject.transform.position, cam.gameObject.transform.forward, out hit, range, layerMask)) {
             SelectionQuadParent.gameObject.SetActive(true);
             Vector3 position = hit.point + (hit.normal * -0.5f);
-            if (position.Floor() + (hit.normal * 0.51f) == lookingAtFacePos) return;
-            lookingAtFacePos = position.Floor() + (hit.normal * 0.51f);
+            if (position.Floor() + (hit.normal * 0.505f) == lookingAtFacePos) return;
+            lookingAtFacePos = position.Floor() + (hit.normal * 0.505f);
             lookingAtPos = position.FloorToInt();
             lookingAt = World.instance.GetBlock(lookingAtPos.x,lookingAtPos.y,lookingAtPos.z);
-            SelectionQuadParent.position = position.Floor() + (hit.normal * 0.51f);
+            SelectionQuadParent.position = position.Floor() + (hit.normal * 0.505f);
             SelectionQuad.rotation = Quaternion.LookRotation(-hit.normal);
         }
     }

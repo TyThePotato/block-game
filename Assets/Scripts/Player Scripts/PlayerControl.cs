@@ -20,7 +20,10 @@ public class PlayerControl : MonoBehaviour
     private float _speedMultiplier;
     private bool _playerMoving;
     private bool _movementKeysPressed = false;
-    private Transform _camTransform;
+
+    [HideInInspector]
+    public Transform _camTransform;
+
     private Vector3 _moveDirection;
     private Vector2 _camRotation;
     private CharacterController _cc;
@@ -107,5 +110,6 @@ public class PlayerControl : MonoBehaviour
     [Command("fov")]
     public void SetFOV (float fov) {
         FOV = fov;
+        SaveLoadData.settings.fov = fov;
     }
 }

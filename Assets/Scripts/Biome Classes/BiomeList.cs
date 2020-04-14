@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using QFSW.QC;
 
 public class BiomeList : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class BiomeList : MonoBehaviour
         _BiL bil = JsonUtility.FromJson<_BiL>(biomeJSON);
         for (int i = 0; i < bil.biomes.Length; i++) {
             biomes.Add(bil.biomes[i].name, bil.biomes[i]);
+            bil.biomes[i].FillBlankValues();
         }
         biomesArray = new Biome[biomes.Count];
         biomes.Values.CopyTo(biomesArray, 0);
@@ -33,6 +35,15 @@ public class BiomeList : MonoBehaviour
         Biome[] b = new Biome[biomes.Count];
         biomes.Values.CopyTo(b, 0);
         return b;
+    }
+
+    [Command("listloadedbiomes")]
+    void ListLoadedBlocks() {
+        string l = "";
+        foreach (string key in biomes.Keys) {
+            l += key + Environment.NewLine;
+        }
+        QuantumConsole.print(l);
     }
 }
 

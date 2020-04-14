@@ -1,7 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class Helper
 {
+    public static string GameFolder (string subfolder = "") {
+        string documents = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string gameFolder = documents + @"\TyJupiter\Block Game\" + subfolder;
+        System.IO.Directory.CreateDirectory(gameFolder);
+        return gameFolder;
+    }
+
     public static Vector3 Round(this Vector3 vector) {
         return new Vector3(Mathf.Round(vector.x), Mathf.Round(vector.y), Mathf.Round(vector.z));
     }
@@ -118,5 +126,11 @@ public static class Helper
         }
 
         mesh.tangents = tangents;
+    }
+
+    public static string Truncate(this string value, int maxLength) {
+        if (string.IsNullOrEmpty(value))
+            return value;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
     }
 }
